@@ -10,7 +10,7 @@ public class Internal {
                 n++;
             }
 
-            //System.out.println("aegoihjaegoihjaeg");
+            //System.out.println("aegoihjaeg");
             //System.out.println(n);
 
             //2. Let x1, x2, …, xn be the base-256...
