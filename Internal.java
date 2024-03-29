@@ -23,7 +23,7 @@ public class Internal {
 
             //3. Let Oi = enc8(xi), for i = 1 to n.
             byte[] byteString = new byte[n + 1];
-            for (int i = 1; i <= n; i++){
+            for (int i = 1; i < n + 1; i++){
                 byteString[i] = (byte) xi[i];
             }
 
@@ -42,9 +42,9 @@ public class Internal {
 
         for (byte b : yield) {
             //check bits, prints from, clears up how bits are stored
-            //reference: https://stackoverflow.com/questions/15529893/could-someone-explain-this-for-me-for-int-i-0-i-8-i
+            //reference: https://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work
             for (int i = 0; i < 8; i++){
-                int bit = (b >> i);
+                int bit = (b >> i) & 1;
                 System.out.print(bit);
             }
             System.out.print(" ");
