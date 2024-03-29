@@ -37,8 +37,7 @@ public class Internal {
 			}
 			return z;
 		} else {
-			System.out.println("fail");
-            return new byte[] {1};
+			throw new IllegalArgumentException("error");
 		}
 	}
 	
@@ -60,8 +59,7 @@ public class Internal {
 			} 
 			return byteString;
 		} else {
-            System.out.println("fail");
-            return new byte[] {1};
+            throw new IllegalArgumentException("error");
         }
 	}
 	
@@ -81,14 +79,14 @@ public class Internal {
             for (int i = n; i >= 1; i--){
                 xi[i] = (x % 256);
                 x = x / 256;
-                System.out.println(xi[i]);
+                //System.out.println(xi[i]);
             }
 
             //3. Let Oi = enc8(xi), for i = 1 to n.
             byte[] byteString = new byte[n + 1];
             for (int i = 1; i < n + 1; i++){
                 byteString[i - 1] = (byte) xi[i];
-                System.out.println(byteString[i]);
+                //System.out.println(byteString[i]);
             }
 
             //4. Let On+1 = enc8(n).
@@ -134,25 +132,22 @@ public class Internal {
         }
     }
 
+    //testing internals, have to move to the the kmac primitive
     public static void main(String[] args) {
-        byte[] yield1 = right_encode(314);
-        byte[] yield2 = left_encode(314);
+        byte[] rightYield = right_encode(314);
+        byte[] leftYield = left_encode(314);
 
-        for (byte b : yield1) {
-            //check bits, prints from, clears up how bits are stored
-            //reference: https://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work
-            
-            for (int i = 0; i < 8; i++){
-                int bit = (b >> i) & 1;
-                System.out.print(bit);
-            }
-            
-            System.out.print(" ");
-            System.out.print("= " + b + ", ");
-        }
-        System.out.println("aegaeg");
+        System.out.println("right encode output");
+        print_bytes(rightYield);
+        System.out.println();
+        System.out.println("left encode output");
+        print_bytes(leftYield);
 
-        for (byte b : yield2) {
+    }
+
+    //helper to print bits for each byte in byte string
+    private static void print_bytes(byte[] byteString){
+        for (byte b : byteString) {
             //check bits, prints from, clears up how bits are stored
             //reference: https://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work
             
