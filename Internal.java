@@ -51,7 +51,7 @@ public class Internal {
             }
             
             System.out.print(" ");
-            System.out.println("= " + b);
+            System.out.print("= " + b + ", ");
         }
     }
 }
