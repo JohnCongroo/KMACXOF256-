@@ -65,9 +65,9 @@ public class Internal {
         }
 	}
 	
-	public static byte[] right_encode(int x) {
+    public static byte[] right_encode(int x){
         //validate input
-        if (x >= 0 && x < Math.pow(2,2040)) {
+        if (x>= 0 && x < Math.pow(2,2040)) {
 
             //1. Let n be the smallest positive integer for which 28n > x
             int n = 1;
@@ -83,6 +83,7 @@ public class Internal {
             for (int i = n; i >= 1; i--){
                 xi[i] = (x % 256);
                 x = x / 256;
+                System.out.println(xi[i]);
             }
 
             //3. Let Oi = enc8(xi), for i = 1 to n.
@@ -94,11 +95,12 @@ public class Internal {
             //4. Let On+1 = enc8(n).
             byteString[n] = (byte) n;
             return byteString;
-        } else {
+        } 
+        else {
             System.out.println("fail");
             return new byte[] {1};
         }
-	}
+    }
     
     public static byte[] left_encode(int x){
         //validate input
