@@ -15,10 +15,10 @@ public class Internal {
 
             //2. Let x1, x2, …, xn be the base-256...
             int[] xi = new int[n + 1];
-            for (int i = 1; i < n + 1; i++){
+            for (int i = n; i >= 1; i--){
                 xi[i] = (x % 256);
                 x = x / 256;
-                //System.out.println(xi[i]);
+                System.out.println(xi[i]);
             }
 
             //3. Let Oi = enc8(xi), for i = 1 to n.
@@ -38,16 +38,20 @@ public class Internal {
     }
 
     public static void main(String[] args) {
-        byte[] yield = left_encode(0);
+        byte[] yield = left_encode(314);
 
         for (byte b : yield) {
             //check bits, prints from, clears up how bits are stored
             //reference: https://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work
+            
+            
             for (int i = 0; i < 8; i++){
                 int bit = (b >> i) & 1;
                 System.out.print(bit);
             }
+            
             System.out.print(" ");
+            System.out.println("= " + b);
         }
     }
 }
