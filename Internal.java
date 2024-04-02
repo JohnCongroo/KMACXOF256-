@@ -157,11 +157,10 @@ public class Internal {
     //helper to print bits for each byte in byte string
     private static void print_bytes(byte[] byteString){
         for (byte b : byteString) {
-            //check bits, prints from, clears up how bits are stored
             //reference: https://stackoverflow.com/questions/9280654/c-printing-bits
                         
-            
-            for (int i = 0; i < 8; i++){
+            //print bits
+            for (int i = 7; i >= 0; i--){
                 int bit = (b >> i) & 1;
                 System.out.print(bit);
             }
@@ -178,6 +177,6 @@ public class Internal {
 //use unnamed pacakges but Java BigInteger needs to be used to reach 2^2048 - 1 upper bound
 //text file and bonus user input implementation both needed?
 
-//bits are signed in java
+//bits are signed in java, the c code given uses uint64_t to prevent unsigned bits.
 
 //
