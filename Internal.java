@@ -71,42 +71,7 @@ public class Internal {
 
             //1. Let n be the smallest positive integer for which 28n > x
             int n = 1;
-            while (Math.pow(2, 8 * n) <= x){
-                n++;
-            }
-            //System.out.println(n);
-
-            //2. Let x1, x2, …, xn be the base-256...
-            int[] xi = new int[n + 1];
-            for (int i = n; i >= 1; i--){
-                xi[i] = (x % 256);
-                x = x / 256;
-                System.out.println(xi[i]);
-            }
-
-            //3. Let Oi = enc8(xi), for i = 1 to n.
-            byte[] byteString = new byte[n + 1];
-            for (int i = 1; i < n + 1; i++){
-                byteString[i - 1] = (byte) xi[i];
-                System.out.println(byteString[i]);
-            }
-
-            //4. Let On+1 = enc8(n).
-            byteString[n] = (byte) n;
-            return byteString;
-        } 
-        else {
-            throw new IllegalArgumentException("error");
-        }
-    }
-    
-    public static byte[] left_encode(int x){
-        //validate input
-        if (x>= 0 && x < Math.pow(2,2040)) {
-
-            //1. Let n be the smallest positive integer for which 28n > x
-            int n = 1;
-            while (Math.pow(2, 8 * n) <= x){
+            while (Math.pow(2, 8*n) <= x){
                 n++;
             }
             //System.out.println(n);
@@ -122,11 +87,48 @@ public class Internal {
             //3. Let Oi = enc8(xi), for i = 1 to n.
             byte[] byteString = new byte[n + 1];
             for (int i = 1; i < n + 1; i++){
+                byteString[i - 1] = (byte) xi[i];
+                //System.out.println(byteString[i]);
+            }
+
+            //4. Let On+1 = enc8(n).
+            byteString[n] = (byte) n;
+            return byteString;
+        } 
+        else {
+            throw new IllegalArgumentException("error");
+        }
+    }
+    
+    public static byte[] left_encode(int x){
+        //validate input
+        if (x>= 0 && x < Math.pow(2,2040)) {
+
+            //1. Let n be the smallest positive integer for which 2^(8n) > x
+            int n = 1;
+            while (Math.pow(2, 8*n) <= x){
+                n++;
+            }
+            //System.out.println(n);
+
+            //2. Let x1, x2, …, xn be the base-256...
+            int[] xi = new int[n + 1];
+            for (int i = n; i >= 1; i--){
+                xi[i] = (x % 256);
+                x = x / 256;
+                //System.out.println(xi[i]);
+            }
+
+            //3. Let Oi = enc8(xi), for i = 1 to n.
+            byte[] byteString = new byte[n + 1];
+            for (int i = 1; i <= n; i++){
                 byteString[i] = (byte) xi[i];
             }
 
             //4. Let O0 = enc8(n).
             byteString[0] = (byte) n;
+
+            //5. Return O = O0 || O1 || … || On−1 || On.
             return byteString;
         } 
         else {
@@ -134,27 +136,30 @@ public class Internal {
         }
     }
 
+    //test
     public static void main(String[] args) {
-        byte[] yield1 = right_encode(314);
-        byte[] yield2 = left_encode(314);
+        byte[] rightYield = right_encode(314);
+        byte[] leftYield = left_encode(314);
 
-        for (byte b : yield1) {
-            //check bits, prints from, clears up how bits are stored
-            //reference: https://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work
-            
-            for (int i = 0; i < 8; i++){
-                int bit = (b >> i) & 1;
-                System.out.print(bit);
-            }
-            
-            System.out.print(" ");
-            System.out.print("= " + b + ", ");
-        }
-        System.out.println("aegaeg");
+        System.out.println("right encode output");
+        print_bytes(rightYield);
+        System.out.println();
+        System.out.println("left encode output");
+        print_bytes(leftYield);
 
-        for (byte b : yield2) {
+
+
+        //byte[] test = encode_string("");
+
+
+    }
+
+    //helper to print bits for each byte in byte string
+    private static void print_bytes(byte[] byteString){
+        for (byte b : byteString) {
             //check bits, prints from, clears up how bits are stored
-            //reference: https://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work
+            //reference: https://stackoverflow.com/questions/9280654/c-printing-bits
+                        
             
             for (int i = 0; i < 8; i++){
                 int bit = (b >> i) & 1;
@@ -170,5 +175,9 @@ public class Internal {
 
 //clarifications needed:
 
-//use unnamed pacakges but Java BigInteger needs to be used to reach (2^2048) - 1 upper bound
+//use unnamed pacakges but Java BigInteger needs to be used to reach 2^2048 - 1 upper bound
 //text file and bonus user input implementation both needed?
+
+//bits are signed in java
+
+//
