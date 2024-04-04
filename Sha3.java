@@ -17,8 +17,6 @@ public class Sha3 {
     1600} and any positive integer nr. 
     */
 
-
-
     //probably needs its own method, find better way to add notes rather than comments that fill up the entire screen
 
     //b parameter, length of array of bits,
@@ -32,11 +30,14 @@ public class Sha3 {
     private static int laneLength = width/25; //should be 64 
     private static int LengthBits = 6; //logbase2 of laneLength, log_2(64) = 6
 
-    long[] state1d = new long[rows * columns]; //5 x 5 index, 64 deep
+    //initial state, no data is put in we do the permutations first then hash
+    long[] state = new long[rows * columns]; //5 x 5 index, 64 deep
 
     //A[x, y,z]=S[w(5y+x)+z].
 
-    public static void keccak_p(Object[] state){
+    //keccac_p is permutations wiith a specific number of rounds, sha-3256 uses 1600 bits and 24 rounds, so thats what we'll use
+    //reference: https://keccak.team/keccakp.html
+    public static void keccak_f(Object[] state){
             //theta
 
             //rho
