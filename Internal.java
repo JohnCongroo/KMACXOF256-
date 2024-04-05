@@ -69,6 +69,8 @@ public class Internal {
 
             //4. Let On+1 = enc8(n).
             byteString[n] = (byte) n;
+
+	    //5. Return O = O0 || O1 || … || On−1 || On.
             return byteString;
         } 
         else {
