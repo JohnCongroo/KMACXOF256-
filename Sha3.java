@@ -31,9 +31,7 @@ public class Sha3 {
     //set by keccak
     private static int ROWS = 5;
     private static int COLUMNS = 5; 
-    //w, how long each lane is
-    
-    
+    //w, how long each lane is    
 
     private static int W = b/25; //should be 64 
     private static int L = 6; //logbase2 of laneLength, log_2(64) = 6
@@ -56,13 +54,9 @@ public class Sha3 {
         return W * (5 * y + x) + z;
     }
 
-
-
     //keccac_p is permutations wiith a specific number of rounds, sha-3256 uses 1600 bits and 24 rounds, so thats what we'll use
     //reference: https://keccak.team/keccakp.html
     public static void keccak_f(boolean[] state){
-
-
             boolean[][] C = new boolean[5][W];
             boolean[][] D = new boolean[5][W];
             boolean[] tempState = state;
