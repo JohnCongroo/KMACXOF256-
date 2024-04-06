@@ -21,19 +21,31 @@ public class Sha3 {
 
     //b parameter, length of array of bits,
     //apparently sha-3 uses a state array of 1600 bits so im using that number for now
-    private static int width = 1600; //inital 
+    
+    //sha-3 standards
+    private static int b = 1600; //inital 
 
 
+    //a lot of these are constants for sha3 or keccak in particular
+
+    //set by keccak
     private static int rows = 5;
     private static int columns = 5; 
-    //w, how long each lane is 
-    private static int laneLength = width/25; //should be 64 
-    private static int LengthBits = 6; //logbase2 of laneLength, log_2(64) = 6
+    //w, how long each lane is
+    
+    
+
+    private static int w = b/25; //should be 64 
+    private static int l = 6; //logbase2 of laneLength, log_2(64) = 6
 
     //initial state, no data is put in we do the permutations first then hash
-    long[] state = new long[rows * columns]; //5 x 5 index, 64 deep
+    static boolean[] state = new boolean[b]; //5 x 5 index, 64 deep
 
-    //A[x, y,z]=S[w(5y+x)+z].
+    //A[x,y,z]=S[w(5y+x)+z].
+
+    private static int A(int x, int y, int z){
+        return (w* (5 * y + x) + z);
+    }
 
     //keccac_p is permutations wiith a specific number of rounds, sha-3256 uses 1600 bits and 24 rounds, so thats what we'll use
     //reference: https://keccak.team/keccakp.html
@@ -48,5 +60,11 @@ public class Sha3 {
 
             //iota
 
+    }
+
+    public static void main(String[] args) {
+        //testing coordinates
+        System.out.println(A(0,0,0));
+        System.out.println(A(4,0,63));
     }
 }
