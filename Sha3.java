@@ -33,6 +33,7 @@ public class Sha3 {
     private static int COLUMNS = 5; 
     //w, how long each lane is    
 
+    
     private static int W = b/25; //should be 64 
     private static int L = 6; //logbase2 of laneLength, log_2(64) = 6
 
@@ -76,7 +77,7 @@ public class Sha3 {
                 for (int x = 0; x < 5; x++){
                     for (int y = 0; y < 5; y++){
                         for(int z = 0; z < W; z++){
-                            tempState[getCoords(x, y, z)] = A(x, y, z, tempState) ^ D[x][z];   
+                            tempState[getCoords(x, y, z)] = A(x, y, z) ^ D[x][z];   
                         }
                     }
                 }
