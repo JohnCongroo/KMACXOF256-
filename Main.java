@@ -15,7 +15,7 @@ public class Main {
         System.out.println("1: Encrypt");
         System.out.println("2: Decrypt");
         Scanner in = new Scanner(System.in);
-
+        byte[] fileBytes = new byte[1];
         // this handles incorrect input
         int selection = inputChecker();
 
@@ -27,7 +27,6 @@ public class Main {
             System.out.println("1. From .txt file");
             System.out.println("2. From console input");
             // declares
-            byte[] fileBytes = new byte[1];
 
             selection = inputChecker();
             // Encryption from File
@@ -42,10 +41,8 @@ public class Main {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
             // Encryption from console menu
             } else if (selection == 2){
-                // TODO: still working on this
                 System.out.println("**********************************");
                 System.out.println("Please input your text to be encrypted:");
                 String consoleInput = in.next();
@@ -58,6 +55,7 @@ public class Main {
             }
 
             //TODO: use fileBytes in the new created functions
+            //TODO: output encrypted byte[] to byte file.
 
         // Decryption Menu
         }else if (selection == 2) {
@@ -75,17 +73,27 @@ public class Main {
             if (selection == 1){
                 System.out.println("**********************************");
                 System.out.println("Please input your path:");
-                //TODO: read in byte file, apply decryption
+                String filePath = in.nextLine();
+                try {
+                    fileBytes = Files.readAllBytes(Paths.get(filePath));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             //decrypt from console input
             } else if (selection == 2){
                 System.out.println("**********************************");
-                System.out.println("Please input your text to be encrypted:");
-                // TODO: read in bytes in console, parse into byte array, apply decryption
+                System.out.println("Please input your bits to be decrypted:");
+                String consoleInput = in.next();
+                // TODO: read in bytes in console, parse into byte array, Waiting for details on input.
+
             } else {
                 System.out.println("**********************************");
                 System.out.println("Invalid selection. Program ending");
                 System.exit(0);
             }
+            //TODO: apply decryption method
+            //TODO: write decrypted message to file.
+
         } else {
             System.out.println("Invalid input, exiting program");
             System.exit(0);
