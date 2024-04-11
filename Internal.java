@@ -1,40 +1,18 @@
 public class Internal { 
 	public static byte[] bytepad(byte[] X, int w) {
+		//validate input
 		if (w > 0) {
-			byte[] left = left_encode(w);
-			byte[] z = new byte[left.length + X.length];
-			
 			// 1. z = left_encode(w) || X.
-			int index = 0;
-			for (byte encode: left) {
-				z[index] = encode;
-				index++;
+			byte[] left = left_encode(w);
+			byte[] z = new byte[w * ((left.length + X.length + w - 1) / w)];
+			System.arraycopy(left, 0, z, 0, left.length);
+			System.arraycopy(X, 0, z, left.length, X.length);
+			// 2. while len(z) mod 8 != 0: z = z || 0
+			// 3. while (len(z)/8) mod w ≠ 0: z = z || 00000000
+			for (int i = left.length + X.length; i < z.length; i++) {
+				z[i] = (byte)0;
 			}
-			for (byte encode: X) {
-				z[index] = encode;
-				index++;
-			}
-			
-			// 2. while len(z) mod 8 ≠ 0
-			if (z.length % 8 != 0) {
-				index = 0;
-				byte[] temp = new byte[z.length + 1];
-				for (byte encode: z) {
-					temp[index] = encode;
-				}
-				temp[temp.length - 1] = 0;
-				z = temp;
-			}
-			//3. while (len(z)/8) mod w ≠ 0:
-			if (z.length/8 % w != 0) {
-				index = 0;
-				byte[] temp = new byte[z.length + 1];
-				for (byte encode: z) {
-					temp[index] = encode;
-				}
-				temp[temp.length - 1] = 00000000;
-				z = temp;
-			}
+			// 4. return z
 			return z;
 		} else {
 			throw new IllegalArgumentException("error");
@@ -91,6 +69,8 @@ public class Internal {
 
             //4. Let On+1 = enc8(n).
             byteString[n] = (byte) n;
+
+	    //5. Return O = O0 || O1 || … || On−1 || On.
             return byteString;
         } 
         else {
