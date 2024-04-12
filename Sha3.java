@@ -31,20 +31,27 @@ public class Sha3 {
         int i, j, r;
         long t, bc[] = new long[5];
 
+        long v;
+
         /*
-        #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-            uint8_t *v;
+            //for java is always big-endian, C is system-dependent 
+            #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
+                uint8_t *v;
+         */
 
         // endianess conversion. this is redundant on little-endian targets
         for (i = 0; i < 25; i++) {
-            v = (uint8_t *) &st[i];
-            st[i] = ((uint64_t) v[0])     | (((uint64_t) v[1]) << 8) |
-                (((uint64_t) v[2]) << 16) | (((uint64_t) v[3]) << 24) |
-                (((uint64_t) v[4]) << 32) | (((uint64_t) v[5]) << 40) |
-                (((uint64_t) v[6]) << 48) | (((uint64_t) v[7]) << 56);
+            v = st[i];
+            st[i] = 
+                ( v << 56 ) & 0xFF00000000000000L | 
+                ( v << 48 ) & 0xFF000000000000L |
+                ( v << 40 ) & 0xFF0000000000L | 
+                ( v << 32 ) & 0xFF00000000L |
+                ( v << 24 ) & 0xFF000000L | 
+                ( v << 16 ) & 0xFF0000L | 
+                ( v << 8  ) & 0xFF00L | 
+                ( v << 0  ) & 0xFFL;
         }
-        #endif
-        */
 
         // actual iteration
         //24 = keccakrounds
@@ -81,26 +88,26 @@ public class Sha3 {
             st[0] ^= keccakf_rndc[r];
         }
 
+
     /*
+        //will always need this cause we are in java
         #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
         // endianess conversion. this is redundant on little-endian targets
-            for (i = 0; i < 25; i++) {
-                v = (uint8_t *) &st[i];
-                t = st[i];
-                v[0] = t & 0xFF;
-                v[1] = (t >> 8) & 0xFF;
-                v[2] = (t >> 16) & 0xFF;
-                v[3] = (t >> 24) & 0xFF;
-                v[4] = (t >> 32) & 0xFF;
-                v[5] = (t >> 40) & 0xFF;
-                v[6] = (t >> 48) & 0xFF;
-                v[7] = (t >> 56) & 0xFF;
-            }
-        #endif
+        */
+        for (i = 0; i < 25; i++) {
+            v = st[i];
+            st[i] = 
+                ( v >> 0 ) & 0xFF | 
+                ( v >> 8 ) & 0xFF |
+                ( v >> 16) & 0xFF | 
+                ( v >> 24) & 0xFF |
+                ( v >> 32) & 0xFF | 
+                ( v >> 40) & 0xFF | 
+                ( v >> 48) & 0xFF | 
+                ( v >> 56) & 0xFF;
         }
-     */
         //to change
-        return new long[1];
+        return st;
     }
 
     
