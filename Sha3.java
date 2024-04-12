@@ -43,6 +43,9 @@ public class Sha3 {
         for (i = 0; i < 25; i++) {
             v = st[i];
             st[i] = 
+                //have to mask to get rid of the 0 bits
+                //apparently c gets rid of them when shifting automatically
+                //shift left 56 so that first byte now has least significant byte, then mask  
                 ( v << 56 ) & 0xFF00000000000000L | 
                 ( v << 48 ) & 0xFF000000000000L |
                 ( v << 40 ) & 0xFF0000000000L | 
@@ -139,7 +142,6 @@ private class sha3_ctx_t{
         mdlen = 0;
     }
 }
-
 
 // update state with more data
 
