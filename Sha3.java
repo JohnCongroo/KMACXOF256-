@@ -1,7 +1,6 @@
 //reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
-
 public class Sha3 {
-    private static long[] keccak_f(long[] st){
+    public static long[] keccak_f(long[] st){
 
         //round constant
         final long keccakf_rndc[] = { 
@@ -113,114 +112,97 @@ public class Sha3 {
         return st;
     }
 
-    
-// Initialize the context for SHA3
+    // Initialize the context for SHA3
 
-public static int sha3_init(Sha3.sha3_ctx_t c, int mdlen){
-    int i;
-    for (i = 0; i < 25; i++) {
-        c.q[i] = 0;
-    }
-
-    c.mdlen = mdlen;
-    c.rsiz = 200 - 2 * mdlen;
-    c.pt = 0;
-
-    return 1;
-}
-
-private class sha3_ctx_t{
-    private byte[] b;
-    private long[] q;
-    private int pt, rsiz, mdlen;
-
-    private sha3_ctx_t(){
-        b = new byte[200];
-        q = new long[25];
-        pt = 0;
-        rsiz = 0;
-        mdlen = 0;
-    }
-}
-
-// update state with more data
-
-int sha3_update(sha3_ctx_t c, byte[] data, int len)
-{
-    int i;
-    int j;
-
-    j = c.pt;
-    for (i = 0; i < len; i++) {
-        c.b[j++] ^= data[i];
-        if (j >= c.rsiz) {
-            keccak_f(c.q);
-            j = 0;
+    public static int sha3_init(sha3_ctx_t c, int mdlen){
+        int i;
+        for (i = 0; i < 25; i++) {
+            c.q[i] = 0;
         }
-    }
-    c.pt = j;
 
-    return 1;
-}
+        c.mdlen = mdlen;
+        c.rsiz = 200 - 2 * mdlen;
+        c.pt = 0;
 
-// finalize and output a hash
-
-int sha3_final(byte[] md, sha3_ctx_t c)
-{
-    int i;
-
-    c.b[c.pt] ^= 0x06;
-    c.b[c.rsiz - 1] ^= 0x80;
-    keccak_f(c.q);
-
-    for (i = 0; i < c.mdlen; i++) {
-        md[i] = c.b[i];
+        return 1;
+        
     }
 
-    return 1;
-}
 
-// compute a SHA-3 hash (md) of given byte length from "in"
 
-public byte[] sha3(byte[] in, int inlen, byte[] md, int mdlen)
-{
-    sha3_ctx_t sha3 = new sha3_ctx_t();
+    // update state with more data
 
-    sha3_init(sha3, mdlen);
-    sha3_update(sha3, in, inlen);
-    sha3_final(md, sha3);
+    public static int sha3_update(sha3_ctx_t c, byte[] data, int len)
+    {
+        int i;
+        int j;
 
-    return md;
-}
-
-// SHAKE128 and SHAKE256 extensible-output functionality
-
-void shake_xof(sha3_ctx_t c)
-{
-    c.b[c.pt] ^= 0x1F;
-    c.b[c.rsiz - 1] ^= 0x80;
-    keccak_f(c.q);
-    c.pt = 0;
-}
-
-void shake_out(sha3_ctx_t c, byte[] out, int len)
-{
-    int i;
-    int j;
-
-    j = c.pt;
-    for (i = 0; i < len; i++) {
-        if (j >= c.rsiz) {
-            keccak_f(c.q);
-            j = 0;
+        j = c.pt;
+        for (i = 0; i < len; i++) {
+            c.b[j++] ^= data[i];
+            if (j >= c.rsiz) {
+                keccak_f(c.q);
+                j = 0;
+            }
         }
-        out[i] = c.b[j++];
-    }
-    c.pt = j;
-}
+        c.pt = j;
 
-    public static void main(String[] args) {
-        //testing coordinates
+        return 1;
     }
 
+    // finalize and output a hash
+
+    public static int sha3_final(byte[] md, sha3_ctx_t c)
+    {
+        int i;
+
+        c.b[c.pt] ^= 0x06;
+        c.b[c.rsiz - 1] ^= 0x80;
+        keccak_f(c.q);
+
+        for (i = 0; i < c.mdlen; i++) {
+            md[i] = c.b[i];
+        }
+
+        return 1;
+    }
+
+    // compute a SHA-3 hash (md) of given byte length from "in"
+
+    public static byte[] sha3(byte[] in, int inlen, byte[] md, int mdlen)
+    {
+        sha3_ctx_t sha3 = new sha3_ctx_t();
+
+        sha3_init(sha3, mdlen);
+        sha3_update(sha3, in, inlen);
+        sha3_final(md, sha3);
+
+        return md;
+    }
+
+    // SHAKE128 and SHAKE256 extensible-output functionality
+
+    public static void shake_xof(sha3_ctx_t c)
+    {
+        c.b[c.pt] ^= 0x1F;
+        c.b[c.rsiz - 1] ^= 0x80;
+        keccak_f(c.q);
+        c.pt = 0;
+    }
+
+    public static void shake_out(sha3_ctx_t c, byte[] out, int len)
+    {
+        int i;
+        int j;
+
+        j = c.pt;
+        for (i = 0; i < len; i++) {
+            if (j >= c.rsiz) {
+                keccak_f(c.q);
+                j = 0;
+            }
+            out[i] = c.b[j++];
+        }
+        c.pt = j;
+    }
 }

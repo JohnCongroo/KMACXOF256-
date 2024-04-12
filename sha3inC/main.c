@@ -27,7 +27,7 @@ static int test_readhex(uint8_t *buf, const char *str, int maxbytes)
         h = test_hexdigit(str[2 * i]);
         if (h < 0)
             return i;
-        l = test_hexdigit(str[2 * i + 1]);
+        l = test_hexdigit(str[2 * i]);
         if (l < 0)
             return i;
         buf[i] = (h << 4) + l;
@@ -85,8 +85,9 @@ int test_sha3()
         memset(msg, 0, sizeof(msg));
 
         msg_len = test_readhex(msg, testvec[i][0], sizeof(msg));
+        printf("msg_len: %d%\n",msg_len);
         sha_len = test_readhex(sha, testvec[i][1], sizeof(sha));
-
+        printf("sha_len: %d%\n", sha_len);
         sha3(msg, msg_len, buf, sha_len);
 
         if (memcmp(sha, buf, sha_len) != 0) {
