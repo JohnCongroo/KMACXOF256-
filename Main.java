@@ -18,6 +18,7 @@ public class Main {
         byte[] fileBytes = new byte[1];
         // this handles incorrect input
         int selection = inputChecker();
+        //comment here
 
         if (selection == 1) {
             // encryption menu
