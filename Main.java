@@ -19,6 +19,7 @@ public class Main {
         // this handles incorrect input
         int selection = inputChecker();
         //comment here
+        //comment 2 here
 
         if (selection == 1) {
             // encryption menu
