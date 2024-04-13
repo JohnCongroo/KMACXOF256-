@@ -128,8 +128,6 @@ public class Sha3 {
         
     }
 
-
-
     // update state with more data
 
     public static int sha3_update(sha3_ctx_t c, byte[] data, int len)
