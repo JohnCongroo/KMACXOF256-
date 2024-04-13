@@ -154,14 +154,14 @@ public class Sha3 {
     {
         int i;
 
-        c.b[c.pt] ^= 0x06;
-        c.b[c.rsiz - 1] ^= 0x80;
+        c.b[c.pt] ^= (byte) 0x06 & 0xFF;
+        c.q[0] ^= (byte) 0x06 & 0xFF;
+        c.b[c.rsiz - 1] ^= (byte) 0x80 & 0xFF;
         keccak_f(c.q);
 
         for (i = 0; i < c.mdlen; i++) {
             md[i] = c.b[i];
         }
-
         return 1;
     }
 

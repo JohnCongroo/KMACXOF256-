@@ -10,4 +10,6 @@ public class sha3_ctx_t{
         rsiz = 0;
         mdlen = 0;
     }
+
+    //need somethign to update b and q at the same time
 }
