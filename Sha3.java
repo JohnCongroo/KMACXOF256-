@@ -1,7 +1,13 @@
 //reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
-
 public class Sha3 {
-    private static long[] keccak_f(long[] st){
+
+
+    private static long ROTL64(long x, long y){
+        return (((x) << (y)) | ((x) >> (64 - (y))));
+    }
+
+
+    public static long[] keccak_f(long[] st){
 
         //round constant
         final long keccakf_rndc[] = { 
@@ -21,7 +27,6 @@ public class Sha3 {
             27, 41, 56, 8,  25, 43, 62, 18, 39, 61, 20, 44
         };
 
-        
         final int keccakf_piln[] = {
             10, 7,  11, 17, 18, 3, 5,  16, 8,  21, 24, 4,
             15, 23, 19, 13, 12, 2, 20, 14, 22, 9,  6,  1
@@ -33,196 +38,183 @@ public class Sha3 {
 
         long v;
 
-        /*
+        /* 
             //for java is always big-endian, C is system-dependent 
             #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
                 uint8_t *v;
-         */
-
+//https://stackoverflow.com/questions/14713102/what-does-and-0xff-do
+        */
         // endianess conversion. this is redundant on little-endian targets
-        for (i = 0; i < 25; i++) {
-            v = st[i];
-            st[i] = 
-                //have to mask to get rid of the 0 bits
-                //apparently c gets rid of them when shifting automatically
-                //shift left 56 so that first byte now has least significant byte, then mask  
-                ( v << 56 ) & 0xFF00000000000000L | 
-                ( v << 48 ) & 0xFF000000000000L |
-                ( v << 40 ) & 0xFF0000000000L | 
-                ( v << 32 ) & 0xFF00000000L |
-                ( v << 24 ) & 0xFF000000L | 
-                ( v << 16 ) & 0xFF0000L | 
-                ( v << 8  ) & 0xFF00L | 
-                ( v << 0  ) & 0xFFL;
-        }
 
+        
+        for (i = 0; i < 25; i++) {
+            long temp;
+            v = st[i];
+            temp = 0;
+            for (j = 0; j < 8; j++){
+                temp = temp << 8;
+                temp = temp | (v >> (j*8) & 0xFFL);
+            }
+            st[i] = temp;
+        }
+        
+
+/* */
         // actual iteration
         //24 = keccakrounds
         for (r = 0; r < 24; r++) {
 
             // Theta
             for (i = 0; i < 5; i++)
-                bc[i] = st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20];
+                bc[i] = (st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20]);
 
             for (i = 0; i < 5; i++) {
-                t = bc[(i + 4) % 5] ^ Long.rotateLeft(bc[(i + 1) % 5], 1);
+                t = ((bc[(i + 4) % 5] ^ Long.rotateLeft(bc[(i + 1) % 5], 1)));
                 for (j = 0; j < 25; j += 5)
-                    st[j + i] ^= t;
+                    st[j + i] ^= t; //breakpoint steps 6 + 10
             }
 
-            // Rho Pi
-            t = st[1];
-            for (i = 0; i < 24; i++) {
-                j = keccakf_piln[i];
-                bc[0] = st[j];
-                st[j] =  Long.rotateLeft(t, keccakf_rotc[i]);
-                t = bc[0];
-            }
 
-            //  Chi
-            for (j = 0; j < 25; j += 5) {
-                for (i = 0; i < 5; i++)
-                    bc[i] = st[j + i];
-                for (i = 0; i < 5; i++)
-                    st[j + i] ^= (~bc[(i + 1) % 5]) & bc[(i + 2) % 5];
-            }
-
-            //  Iota
-            st[0] ^= keccakf_rndc[r];
+        // Rho Pi
+        t = st[1];
+        for (i = 0; i < 24; i++) {
+            j = keccakf_piln[i];
+            bc[0] = st[j];
+            st[j] =  Long.rotateLeft(t, keccakf_rotc[i]);
+            t = bc[0];
         }
 
+        //  Chi
+        for (j = 0; j < 25; j += 5) {
+            for (i = 0; i < 5; i++)
+                bc[i] = st[j + i];
+            for (i = 0; i < 5; i++)
+                st[j + i] ^= (~bc[(i + 1) % 5]) & bc[(i + 2) % 5];
+        }
 
-    /*
+        //  Iota
+        st[0] ^= keccakf_rndc[r];     
+        }
+
+/* 
+    
         //will always need this cause we are in java
         #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
         // endianess conversion. this is redundant on little-endian targets
         */
+        /* 
         for (i = 0; i < 25; i++) {
+            long temp;
             v = st[i];
-            st[i] = 
-                ( v >> 0 ) & 0xFF | 
-                ( v >> 8 ) & 0xFF |
-                ( v >> 16) & 0xFF | 
-                ( v >> 24) & 0xFF |
-                ( v >> 32) & 0xFF | 
-                ( v >> 40) & 0xFF | 
-                ( v >> 48) & 0xFF | 
-                ( v >> 56) & 0xFF;
-        }
+            temp = 0;
+            for (j = 0; j < 8; j++){
+                temp = temp << 8;
+                temp = temp | (v >> (j*8) & 0xFF);
+            }
+            st[i] = temp;
+    }
+    */
         //to change
         return st;
     }
 
-    
-// Initialize the context for SHA3
+    // Initialize the context for SHA3
 
-public static int sha3_init(Sha3.sha3_ctx_t c, int mdlen){
-    int i;
-    for (i = 0; i < 25; i++) {
-        c.q[i] = 0;
-    }
-
-    c.mdlen = mdlen;
-    c.rsiz = 200 - 2 * mdlen;
-    c.pt = 0;
-
-    return 1;
-}
-
-private class sha3_ctx_t{
-    private byte[] b;
-    private long[] q;
-    private int pt, rsiz, mdlen;
-
-    private sha3_ctx_t(){
-        b = new byte[200];
-        q = new long[25];
-        pt = 0;
-        rsiz = 0;
-        mdlen = 0;
-    }
-}
-
-// update state with more data
-
-int sha3_update(sha3_ctx_t c, byte[] data, int len)
-{
-    int i;
-    int j;
-
-    j = c.pt;
-    for (i = 0; i < len; i++) {
-        c.b[j++] ^= data[i];
-        if (j >= c.rsiz) {
-            keccak_f(c.q);
-            j = 0;
+    public static int sha3_init(sha3_ctx_t c, int mdlen){
+        int i;
+        for (i = 0; i < 25; i++) {
+            c.q[i] = 0;
         }
-    }
-    c.pt = j;
 
-    return 1;
-}
+        c.mdlen = mdlen;
+        c.rsiz = 200 - 2 * mdlen;
+        c.pt = 0;
 
-// finalize and output a hash
-
-int sha3_final(byte[] md, sha3_ctx_t c)
-{
-    int i;
-
-    c.b[c.pt] ^= 0x06;
-    c.b[c.rsiz - 1] ^= 0x80;
-    keccak_f(c.q);
-
-    for (i = 0; i < c.mdlen; i++) {
-        md[i] = c.b[i];
+        return 1;
+        
     }
 
-    return 1;
-}
+    // update state with more data
 
-// compute a SHA-3 hash (md) of given byte length from "in"
+    public static int sha3_update(sha3_ctx_t c, byte[] data, int len)
+    {
+        int i;
+        int j;
 
-public byte[] sha3(byte[] in, int inlen, byte[] md, int mdlen)
-{
-    sha3_ctx_t sha3 = new sha3_ctx_t();
-
-    sha3_init(sha3, mdlen);
-    sha3_update(sha3, in, inlen);
-    sha3_final(md, sha3);
-
-    return md;
-}
-
-// SHAKE128 and SHAKE256 extensible-output functionality
-
-void shake_xof(sha3_ctx_t c)
-{
-    c.b[c.pt] ^= 0x1F;
-    c.b[c.rsiz - 1] ^= 0x80;
-    keccak_f(c.q);
-    c.pt = 0;
-}
-
-void shake_out(sha3_ctx_t c, byte[] out, int len)
-{
-    int i;
-    int j;
-
-    j = c.pt;
-    for (i = 0; i < len; i++) {
-        if (j >= c.rsiz) {
-            keccak_f(c.q);
-            j = 0;
+        j = c.pt;
+        for (i = 0; i < len; i++) {
+            c.b[j++] ^= data[i];
+            c.update_q();
+            if (j >= c.rsiz) {
+                keccak_f(c.q);
+                c.update_b();
+                j = 0;
+            }
         }
-        out[i] = c.b[j++];
-    }
-    c.pt = j;
-}
+        c.pt = j;
 
-    public static void main(String[] args) {
-        //testing coordinates
+        return 1;
     }
 
+    // finalize and output a hash
 
+    public static int sha3_final(byte[] md, sha3_ctx_t c)
+    {
+        int i;
 
+        c.b[c.pt] ^= (byte) 0x06;
+        c.update_q();
+        c.b[c.rsiz - 1] ^= (byte) 0x80;
+        c.update_q();
+        keccak_f(c.q);
+        c.update_b();
+
+        for (i = 0; i < c.mdlen; i++) {
+            md[i] = c.b[i];
+        }
+        return 1;
+    }
+
+    // compute a SHA-3 hash (md) of given byte length from "in"
+
+    public static byte[] sha3(byte[] in, int inlen, byte[] md, int mdlen)
+    {
+        sha3_ctx_t sha3 = new sha3_ctx_t();
+
+        sha3_init(sha3, mdlen);
+        sha3_update(sha3, in, inlen);
+        sha3_final(md, sha3);
+
+        return md;
+    }
+
+    // SHAKE128 and SHAKE256 extensible-output functionality
+
+    public static void shake_xof(sha3_ctx_t c)
+    {
+        c.b[c.pt] ^= 0x1F;
+        c.update_q();
+        c.b[c.rsiz - 1] ^= 0x80;
+        c.update_q();
+        keccak_f(c.q);
+        c.update_b();
+        c.pt = 0;
+    }
+
+    public static void shake_out(sha3_ctx_t c, byte[] out, int len)
+    {
+        int i;
+        int j;
+
+        j = c.pt;
+        for (i = 0; i < len; i++) {
+            if (j >= c.rsiz) {
+                keccak_f(c.q);
+                c.update_b();
+                j = 0;
+            }
+            out[i] = c.b[j++];
+        }
+        c.pt = j;
+    }
 }
