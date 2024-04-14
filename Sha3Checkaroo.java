@@ -116,7 +116,7 @@ public class Sha3Checkaroo{
 
     public static void main(String args[]){
         if (test_sha3() == 0 /*&& test_shake() == 0*/){
-            System.out.println("FIPS 202 / SHA3, SHAKE128, SHAKE256 Self-Tests OK!\n");
+            System.out.println("sha-3 tests finished with no errors, but look at that last char");
             //test_speed();
         }
     }
