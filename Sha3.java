@@ -1,6 +1,33 @@
 //reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
 public class Sha3 {
+    private byte[] right_encode = {0, 1};
 
+    public byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
+        //1. newX = bytepad(encode_string(K), 136) || X || right_encode(0).
+        byte[] bytepad = bytepad(encode_string(K), 136);
+        byte[] newX = new byte[bytepad.length + X.length + right_encode.length];
+        System.arraycopy(bytepad, 0, newX, 0, bytepad.length);
+        System.arraycopy(X, 0, newX, bytepad.length, X.length);
+        System.arraycopy(right_encode, 0, newX, bytepad.length + X.length, right_encode.length);
+        return cSHAKE256(newX, L, "KMAC".getBytes(), S);
+    }
+
+    public byte[] cSHAKE256(byte[] X, int L, byte[] N, byte[] S) {
+        //return KECCAK[512](bytepad(encode_string(N) || encode_string(S), 136) || X || 00, L).
+        byte[] encodeN = encode_string(N);
+        byte[] encodeS = encode_string(S);
+        byte[] encode = new byte[encodeN.length + encodeS.length];
+        System.arraycopy(encodeN, 0, encode, 0, encodeN.length);
+        System.arraycopy(encodeS, 0, encode, encodeN.length, encodeS.length);
+        byte[] pad = bytepad(encode, 136);
+
+        byte[] finalString = new byte[pad.length + X.length + 2];
+        System.arraycopy(pad, 0, finalString, 0, pad.length);
+        System.arraycopy(X, 0, finalString, pad.length, X.length);
+        finalString[finalString.length - 2] = 0;
+        finalString[finalString.length - 1] = 0;
+        return sha3(finalString, finalString.length, new byte[64], L / 2);
+    }
 
     private static long ROTL64(long x, long y){
         return (((x) << (y)) | ((x) >> (64 - (y))));

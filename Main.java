@@ -141,6 +141,14 @@ public class Main {
         }
         return selection;
     }
+
+    public byte[] cryptographic_hash(byte[] m) {
+        return KMACXOF256("".getBytes(), m, 512, "D".getBytes());
+    }
+
+    public byte[] authentication_tag(byte[] m, byte[] pw) {
+        return KMACXOF256(pw, m, 512, "T".getBytes());
+    }
     // encrypt
     public static void encrypt (byte [] password, byte [] customizationString, byte[] m){
         //encrypt
@@ -157,7 +165,7 @@ public class Main {
         if (customizationString != null){
             S = customizationString;
         }
-        byte[] keAndKa = kmacxof256(zAndPw, "", 1024, S);
+        byte[] keAndKa = KMACXOF256(zAndPw, "", 1024, S);
         //splitting keAndKa in half into two arrays
         // not checking for rounding, as kmax should return a 256 bit string
         byte[] ke = new byte[keAndKa.length / 2];
@@ -169,8 +177,8 @@ public class Main {
         // |m| is the length of the message m
         // ^ is the xor operator
 
-        byte[] c = kmaxof256(ke, "", m.length, "SKE".getBytes()) ^ m;
-        byte[] t = kmaxof256(ka, m, 512, "SKA".getBytes());
+        byte[] c = KMACXOF256(ke, "", m.length, "SKE".getBytes()) ^ m;
+        byte[] t = KMACXOF256(ka, m, 512, "SKA".getBytes());
         // symmetric cryptogram: (z, c, t)
 
     }
