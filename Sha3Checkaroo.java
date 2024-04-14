@@ -16,21 +16,28 @@ public class Sha3Checkaroo{
     static int test_readhex(byte[] buf, String str, int maxbytes)
     {
 
-        int i, h, l;
-
+        int i = 0, h, l;
+        //System.out.println(str);
         for (i = 0; i < str.length() / 2; i++) {
             //System.out.println("inside test_readhex: " + str.length() + " " + i);
-            h = test_hexdigit(str.charAt(i * 2));
-            if (h < 0)
-                return i;
-            l = test_hexdigit(str.charAt(i * 2 + 1));
-            if (l < 0)
-                return i;
-            buf[i] = (byte) ((h << 4) + l);
+
+            if (str.isBlank()){
+                return -1;
+            } else {
+                h = test_hexdigit(str.charAt(i * 2));
+                if (h < 0)
+                    return i;
+                l = test_hexdigit(str.charAt(i * 2 + 1));
+                if (l < 0)
+                    return i;
+                buf[i] = (byte) ((h << 4) + l);
+            }
+
         }
 
         return i;
     }
+
 
     // returns zero on success, nonzero + stderr messages on failure
 
@@ -82,17 +89,16 @@ public class Sha3Checkaroo{
 
             msg_len = test_readhex(msg, testvec[i][0], msg.length);
             //System.out.println(msg_len);
-            sha_len = test_readhex(sha, testvec[i][1], sha.length - 1);
+            sha_len = test_readhex(sha, testvec[i][1], sha.length);
             //System.out.println(sha_len);
             Sha3.sha3(msg, msg_len, buf, sha_len);
-
 
             System.out.print("\nSHA: ");
             for (int j = 0; j < sha_len; j++){
                 System.out.printf("%02X ", sha[j]);
             }
             System.out.println("");
-            System.out.print("BUF :");
+            System.out.print("BUF: ");
             for (int j = 0; j < sha_len; j++){
                 System.out.printf("%02X ", buf[j]);
             }
@@ -103,9 +109,8 @@ public class Sha3Checkaroo{
                     fails++;
                 }
             }
-            System.out.println("\n------------------------------------------------\nFAILURE, i: " + i + ", SHA3-" + sha_len * 8 + " msg_len: " + msg_len);
-            //System.out.println("\n");
         }
+        System.out.println("Number of fails: " + fails);
         return fails;
     }
 
