@@ -14,7 +14,7 @@ public class sha3_ctx_t{
     }
 
     public void update_q(){
-        long temp;
+        long temp = 0;
         for (int i = 0; i < q.length; i++) {
             temp = 0;
             for (int j = 0; j < 8; j++){
