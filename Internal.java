@@ -1,4 +1,5 @@
-public class Internal { 
+
+public class Internal {
 	public static byte[] bytepad(byte[] X, int w) {
 		//validate input
 		if (w > 0) {

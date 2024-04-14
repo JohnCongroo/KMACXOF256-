@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.security.SecureRandom;
 
 public class Main {
     public static void main(String[] args) {
@@ -140,4 +141,38 @@ public class Main {
         }
         return selection;
     }
+    // encrypt
+    public static void encrypt (byte [] password, byte [] customizationString, byte[] m){
+        //encrypt
+        byte[] z = new SecureRandom().generateSeed(256);
+        byte[] zAndPw = new byte[z.length + password.length];
+        // (ke || ka) is equal to the function call of kmacxof256 with the following paramaters
+        // z (secure random number)
+        // pw passphrase (password)
+        // these two are combined above into zAndPw
+        // 1024 = N, a function-name bit string, used by NIST to define functions based on cSHAKE
+        // "S" = is a customization bit string. The user selects this string to define a variant of the function.
+        //      when no customization is desired, S is set to the empty string
+        byte[] S = new byte[0];
+        if (customizationString != null){
+            S = customizationString;
+        }
+        byte[] keAndKa = kmacxof256(zAndPw, "", 1024, S);
+        //splitting keAndKa in half into two arrays
+        // not checking for rounding, as kmax should return a 256 bit string
+        byte[] ke = new byte[keAndKa.length / 2];
+        byte[] ka = new byte[keAndKa.length / 2];
+        System.arraycopy(keAndKa, 0, ke, 0, ke.length);
+        System.arraycopy(keAndKa, ke.length, ka, 0, ka.length);
+
+        // c is the encrypted message
+        // |m| is the length of the message m
+        // ^ is the xor operator
+
+        byte[] c = kmaxof256(ke, "", m.length, "SKE".getBytes()) ^ m;
+        byte[] t = kmaxof256(ka, m, 512, "SKA".getBytes());
+        // symmetric cryptogram: (z, c, t)
+
+    }
+
 }
