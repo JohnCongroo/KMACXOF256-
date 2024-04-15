@@ -24,8 +24,10 @@ public class Sha3 {
         byte[] finalString = new byte[pad.length + X.length + 2];
         System.arraycopy(pad, 0, finalString, 0, pad.length);
         System.arraycopy(X, 0, finalString, pad.length, X.length);
-        finalString[finalString.length - 2] = 0;
-        finalString[finalString.length - 1] = 0;
+        // This needs to be fixed
+//        finalString[finalString.length - 2] = 0;
+//        finalString[finalString.length - 1] = 0;
+        // Need to implement KECCAK[512]
         return sha3(finalString, finalString.length, new byte[64], L / 2);
     }
 
