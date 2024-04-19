@@ -48,17 +48,15 @@ public class Sha3 {
 
         
         for (i = 0; i < 25; i++) {
-            long temp;
             v = st[i];
-            temp = 0;
+            long temp = 0;
             for (j = 0; j < 8; j++){
-                temp = temp << 8;
-                temp = temp | (v >> (j*8) & 0xFFL);
+                temp = temp << 8; //to make room
+                temp = temp | (v >> (j*8) & 0xFF); //grab only the relevant bits
             }
             st[i] = temp;
         }
         
-
 /* */
         // actual iteration
         //24 = keccakrounds
@@ -69,6 +67,7 @@ public class Sha3 {
                 bc[i] = (st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20]);
 
             for (i = 0; i < 5; i++) {
+                //had to change built in rotc to long.rotateleft, off by 1 error, 
                 t = ((bc[(i + 4) % 5] ^ Long.rotateLeft(bc[(i + 1) % 5], 1)));
                 for (j = 0; j < 25; j += 5)
                     st[j + i] ^= t; //breakpoint steps 6 + 10
@@ -97,16 +96,9 @@ public class Sha3 {
         }
 
 /* 
-    
-        //will always need this cause we are in java
-        #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-        // endianess conversion. this is redundant on little-endian targets
-        */
-        /* 
         for (i = 0; i < 25; i++) {
-            long temp;
             v = st[i];
-            temp = 0;
+            long temp = 0;
             for (j = 0; j < 8; j++){
                 temp = temp << 8;
                 temp = temp | (v >> (j*8) & 0xFF);
@@ -114,18 +106,17 @@ public class Sha3 {
             st[i] = temp;
     }
     */
-        //to change
         return st;
     }
 
     // Initialize the context for SHA3
-
     public static int sha3_init(sha3_ctx_t c, int mdlen){
         int i;
         for (i = 0; i < 25; i++) {
             c.q[i] = 0;
         }
 
+        //initializating state array params
         c.mdlen = mdlen;
         c.rsiz = 200 - 2 * mdlen;
         c.pt = 0;

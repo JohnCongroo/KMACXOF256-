@@ -1,4 +1,6 @@
 //reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
+import java.util.Arrays;
+
 
 public class Sha3Checkaroo{
     // read a hex string, return byte length or -1 on error.
@@ -92,7 +94,7 @@ public class Sha3Checkaroo{
             sha_len = test_readhex(sha, testvec[i][1], sha.length);
             //System.out.println(sha_len);
             Sha3.sha3(msg, msg_len, buf, sha_len);
-
+/* 
             System.out.print("\nSHA: ");
             for (int j = 0; j < sha_len; j++){
                 System.out.printf("%02X ", sha[j]);
@@ -102,7 +104,7 @@ public class Sha3Checkaroo{
             for (int j = 0; j < sha_len; j++){
                 System.out.printf("%02X ", buf[j]);
             }
-
+*/
             for (int j = 0; j < sha_len; j++){
                 if (sha[j] != buf[j]){
                     //System.out.print(sha[j] + " " + buf[j] + " ");
@@ -114,17 +116,7 @@ public class Sha3Checkaroo{
         return fails;
     }
 
-    public static void main(String args[]){
-        if (test_sha3() == 0 /*&& test_shake() == 0*/){
-            System.out.println("sha-3 tests finished with no errors, but look at that last char");
-            //test_speed();
-        }
-    }
-}
-    /* 
-    // test for SHAKE128 and SHAKE256
-
-    int test_shake()
+    static int test_shake()
     {
         // Test vectors have bytes 480..511 of XOF output for given inputs.
         // From http://csrc.nist.gov/groups/ST/toolkit/examples.html#aHashing
@@ -141,7 +133,7 @@ public class Sha3Checkaroo{
         };
 
         int i, j, fails;
-        sha3_ctx_t sha3;
+        sha3_ctx_t sha3 = new sha3_ctx_t();
         byte[] buf = new byte[32];
         byte[] ref = new byte[32];
 
@@ -150,27 +142,45 @@ public class Sha3Checkaroo{
         for (i = 0; i < 4; i++) {
 
             if ((i & 1) == 0) {             // test each twice
-                Shaha3.sha3_init(sha3, 16);
+                Sha3.shake128_init(&sha3);
             } else {
-                Shaha3.sha3_init(sha3, 32);
+                Sha3.shake256_init(&sha3);
             }
 
             if (i >= 2) {                   // 1600-bit test pattern
-                memset(buf, 0xA3, 20);
+                Arrays.fill(buf, (byte) 0xA3);
                 for (j = 0; j < 200; j += 20)
-                    shake_update(sha3, buf, 20);
+                    Sha3.shake_update(sha3, buf, 20);
             }
 
-            shake_xof(sha3);               // switch to extensible output
+            Sha3.shake_xof(sha3);               // switch to extensible output
 
             for (j = 0; j < 512; j += 32)   // output. discard bytes 0..479
-                shake_out(sha3, buf, 32);
+            Sha3.shake_out(sha3, buf, 32);
 
+           
+            /* 
+            System.out.println("");
+            System.out.print("BUF: ");
+            for (int y = 0; y < buf.length; y++){
+                System.out.printf("%02X ", buf[y]);
+            }
+
+*/
             // compare to reference
-            test_readhex(ref, testhex[i], sizeof(ref));
-            if (memcmp(buf, ref, 32) != 0) {
-                fprintf(stderr, "[%d] SHAKE%d, len %d test FAILED.\n",
-                    i, i & 1 ? 256 : 128, i >= 2 ? 1600 : 0);
+            test_readhex(ref, testhex[i], ref.length);
+            System.out.print("\nref: ");
+            for (int x = 0; x < ref.length; x++){
+                System.out.printf("%02X ", ref[x]);
+            }
+            System.out.print("");
+            System.out.print("\nbuf: ");
+            for (int x = 0; x < buf.length; x++){
+                System.out.printf("%02X ", buf[x]);
+            }
+            
+            if (Arrays.equals(buf, ref) == false) {
+                System.out.printf("SHAKE, len  test FAILED");
                 fails++;
             }
         }
@@ -178,8 +188,18 @@ public class Sha3Checkaroo{
         return fails;
     }
 
-    // test speed of the comp
+    public static void main(String args[]){
+        if (test_sha3() == 0 && test_shake() == 0){
+            System.out.println("sha-3 tests finished with no errors");
+            //test_speed();
+        }
+    }
+}
+    
+    // test for SHAKE128 and SHAKE256
 
+    // test speed of the comp
+/* 
     void test_speed()
     {
         int i;
