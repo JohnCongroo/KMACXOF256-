@@ -142,15 +142,15 @@ public class Sha3Checkaroo{
         for (i = 0; i < 4; i++) {
 
             if ((i & 1) == 0) {             // test each twice
-                Sha3.shake128_init(&sha3);
+                Sha3.sha3_init(sha3, 487 * 2);
             } else {
-                Sha3.shake256_init(&sha3);
+                Sha3.sha3_init(sha3, 487 * 4);
             }
 
             if (i >= 2) {                   // 1600-bit test pattern
                 Arrays.fill(buf, (byte) 0xA3);
                 for (j = 0; j < 200; j += 20)
-                    Sha3.shake_update(sha3, buf, 20);
+                    Sha3.sha3_update(sha3, buf, 20);
             }
 
             Sha3.shake_xof(sha3);               // switch to extensible output
