@@ -142,6 +142,22 @@ public class Main {
         return selection;
     }
 
+    public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
+        // Validity Conditions: len(K) < 2^2040 and 0 ≤ L and len(S) < 2^2040
+        if ((L & 7) != 0) {
+            throw new RuntimeException("Implementation restriction: " +
+                    "output length (in bits) must be a multiple of 8");
+        }
+        byte[] val = new byte[L >>> 3];
+        SHAKE shake = new SHAKE();
+        sha3_ctx_t c = new sha3_ctx_t();
+        shake.kinit256(K, X, S);
+        shake.sha3_update(c, X, X.length);
+        shake.shake_xof(c);
+        shake.shake_out(c, val, L >>> 3);
+        return val; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
+    }
+
     public byte[] cryptographic_hash(byte[] m) {
         return KMACXOF256("".getBytes(), m, 512, "D".getBytes());
     }
@@ -180,7 +196,5 @@ public class Main {
         byte[] c = KMACXOF256(ke, "", m.length, "SKE".getBytes()) ^ m;
         byte[] t = KMACXOF256(ka, m, 512, "SKA".getBytes());
         // symmetric cryptogram: (z, c, t)
-
     }
-
 }
