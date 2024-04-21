@@ -150,11 +150,10 @@ public class Main {
         }
         byte[] val = new byte[L >>> 3];
         SHAKE shake = new SHAKE();
-        sha3_ctx_t c = new sha3_ctx_t();
-        shake.kinit256(K, X, S);
-        shake.sha3_update(c, X, X.length);
-        shake.shake_xof(c);
-        shake.shake_out(c, val, L >>> 3);
+        shake.kinit256(K, S);
+        shake.sha3_update(X, X.length);
+        shake.shake_xof();
+        shake.shake_out(val, L >>> 3);
         return val; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
     }
 
@@ -181,7 +180,7 @@ public class Main {
         if (customizationString != null){
             S = customizationString;
         }
-        byte[] keAndKa = KMACXOF256(zAndPw, "", 1024, S);
+        byte[] keAndKa = KMACXOF256(zAndPw, "".getBytes(), 1024, S);
         //splitting keAndKa in half into two arrays
         // not checking for rounding, as kmax should return a 256 bit string
         byte[] ke = new byte[keAndKa.length / 2];
@@ -193,7 +192,7 @@ public class Main {
         // |m| is the length of the message m
         // ^ is the xor operator
 
-        byte[] c = KMACXOF256(ke, "", m.length, "SKE".getBytes()) ^ m;
+        byte[] c = KMACXOF256(ke, "".getBytes(), m.length, "SKE".getBytes()) ^ m;
         byte[] t = KMACXOF256(ka, m, 512, "SKA".getBytes());
         // symmetric cryptogram: (z, c, t)
     }
