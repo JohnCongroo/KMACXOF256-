@@ -1,156 +1,95 @@
 //java uses utf-8 encoding when reading in from the scanner
-
-
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Scanner;
+import java.util.Arrays;
 import java.security.SecureRandom;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Welcome to TCSS487 Encrypter.");
-        System.out.println("Program by Andrew, Jasmine, and Max");
-        System.out.println("***********************************");
-        System.out.println("Choose a number from the list to encrypt or decrypt:");
-        System.out.println("1: Encrypt");
-        System.out.println("2: Decrypt");
-        Scanner in = new Scanner(System.in);
-        byte[] fileBytes = new byte[1];
-        // this handles incorrect input
-        int selection = inputChecker();
-        //comment here
-        //comment 2 here
+        byte[] m = new byte[0];
+        byte[] pw = new byte[0];
+        byte[] zct = new byte[0];
+        String outputPath = "";
 
-        if (selection == 1) {
-            // encryption menu
-            System.out.println("**********************************");
-            System.out.println("Encryption selected.");
-            System.out.println("Type the number from the list to select input type:");
-            System.out.println("1. From .txt file");
-            System.out.println("2. From console input");
-            // declares
-
-            selection = inputChecker();
-            // Encryption from File
-            if (selection == 1){
-                // Encryption from File selection
-                System.out.println("**********************************");
-                System.out.println("Please input your path:");
-                in = new Scanner(System.in);
-                String filePath = in.nextLine();
-                try {
-                    fileBytes = Files.readAllBytes(Paths.get(filePath));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            // Encryption from console menu
-            } else if (selection == 2){
-                System.out.println("**********************************");
-                System.out.println("Please input your text to be encrypted:");
-                String consoleInput = in.next();
-                fileBytes = consoleInput.getBytes();
-
-            } else {
-                System.out.println("**********************************");
-                System.out.println("Invalid selection. Program ending");
-                System.exit(0);
+        if (args.length > 0) {
+            /*
+            argument expectations/outputs:
+            Hash: <program_name> hash <filepath_m>
+                input: byte array m from file (probably .bin)
+                output: cryptographic hash h
+            Auth: <program_name> auth <filepath_m> <passphrase_pw>
+                input: byte array m, passphrase pw
+                output: authentication tag t
+            Encrypt: <program_name> encrypt <filepath_m> <passphrase_pw>
+                input: byte array m, passphrase pw
+                output: symmetric cryptogram (z,c,t)
+            Decrypt: <program_name> decrypt <filepath_(zct)> <passphrase_pw>
+                input: symmetric cryptogram (z,c,t), passphrase pw
+                output: decrypted byte array t_prime
+             */
+            switch (args[0]) {
+                case "hash":
+                    m = fileToByteArray(args[1]);
+                    byte[] h = cryptographic_hash(m);
+                    // TODO: file output
+                    System.out.println("Hash Algorithm");
+                    break;
+                case "auth":
+                    m = fileToByteArray(args[1]);
+                    pw = args[2].getBytes();
+                    // TODO: place function
+                    // TODO: file output
+                    System.out.println("Auth Algorithm");
+                    break;
+                case "encrypt":
+                    m = fileToByteArray(args[1]);
+                    pw = args[2].getBytes();
+                    zct = encrypt(m, pw);
+                    // TODO: file output
+                    System.out.println("encrypt Algorithm");
+                    break;
+                case "decrypt":
+                    zct = fileToByteArray(args[1]);
+                    pw = args[2].getBytes();
+                    m = decrypt(zct, pw);
+                    // TODO: file output
+                    System.out.println("decrypt Algorithm");
+                    break;
+                default:
+                    System.out.println("Invalid Argument");
+                    break;
             }
-
-            //TODO: use fileBytes in the new created functions
-            //TODO: output encrypted byte[] to byte file.
-
-        // Decryption Menu
-        }else if (selection == 2) {
-            //TODO: implement decryption function.
-            System.out.println("**********************************");
-            System.out.println("Decryption selected.");
-            System.out.println("Type the number from the list to select input type:");
-            System.out.println("1. From file");
-            System.out.println("2. From console input");
-            in = new Scanner(System.in);
-            // checks for valid input
-            selection = inputChecker();
-
-            // decrypt from file
-            if (selection == 1){
-                System.out.println("**********************************");
-                System.out.println("Please input your path:");
-                String filePath = in.nextLine();
-                try {
-                    fileBytes = Files.readAllBytes(Paths.get(filePath));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            //decrypt from console input
-            } else if (selection == 2){
-                System.out.println("**********************************");
-                System.out.println("Please input your bits to be decrypted:");
-                String consoleInput = in.next();
-                // TODO: read in bytes in console, parse into byte array, Waiting for details on input.
-
-            } else {
-                System.out.println("**********************************");
-                System.out.println("Invalid selection. Program ending");
-                System.exit(0);
-            }
-            //TODO: apply decryption method
-            //TODO: write decrypted message to file.
-
         } else {
-            System.out.println("Invalid input, exiting program");
-            System.exit(0);
+            System.out.println("No acceptable arguments.");
+            System.out.println("Please use the argument hash, auth, encrypt, or decrypt to use this program");
         }
-        in.close();
-
-
-
-
-
-
-//        if (args.length > 0){
-//            byte[] btest;
-//            //System.out.println(args[0]);
-//            //testing user input bytes
-//            for (int i = 0; i < args.length; i++){
-//                btest = args[i].getBytes();
-//                for (byte b : btest){
-//                    for (int j = 7; j >= 0; j--){
-//                        System.out.print((b >> j) & 1);
-//                    }
-//                    System.out.print(" ");
-//                    System.out.print("= " + b + ", ");
-//                }
-//            }
-//        }
-    }
-    // this handles input checks for values 1 and 2
-    private static int inputChecker(){
-        Scanner in = new Scanner(System.in);
-        int selection;
-        while(true){
-            String value = in.next();
-            if (value.equals("1") || value.equals("2")){
-                selection = Integer.parseInt(value);
-                break;
-            }else {
-                System.out.println("Invalid input.");
-                System.out.println("Input 1 or 2.");
-                in = new Scanner(System.in);
-            }
-        }
-        return selection;
     }
 
-    public byte[] cryptographic_hash(byte[] m) {
+    // file to bytes converter
+    public static byte[] fileToByteArray(String path){
+        byte[] fileBytes = new byte[0];
+        try {
+            fileBytes = Files.readAllBytes(Paths.get(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return fileBytes;
+    }
+
+    // cryptographic hash function
+    public static byte[] cryptographic_hash(byte[] m) {
         return KMACXOF256("".getBytes(), m, 512, "D".getBytes());
     }
 
     public byte[] authentication_tag(byte[] m, byte[] pw) {
         return KMACXOF256(pw, m, 512, "T".getBytes());
     }
+
     // encrypt
-    public static void encrypt (byte [] password, byte [] customizationString, byte[] m){
+    public static byte[] encrypt(byte [] m, byte[] password){
         //encrypt
         byte[] z = new SecureRandom().generateSeed(256);
         byte[] zAndPw = new byte[z.length + password.length];
@@ -162,10 +101,7 @@ public class Main {
         // "S" = is a customization bit string. The user selects this string to define a variant of the function.
         //      when no customization is desired, S is set to the empty string
         byte[] S = new byte[0];
-        if (customizationString != null){
-            S = customizationString;
-        }
-        byte[] keAndKa = KMACXOF256(zAndPw, "", 1024, S);
+        byte[] keAndKa = KMACXOF256(zAndPw, "", 1024, "S".getBytes());
         //splitting keAndKa in half into two arrays
         // not checking for rounding, as kmax should return a 256 bit string
         byte[] ke = new byte[keAndKa.length / 2];
@@ -179,8 +115,37 @@ public class Main {
 
         byte[] c = KMACXOF256(ke, "", m.length, "SKE".getBytes()) ^ m;
         byte[] t = KMACXOF256(ka, m, 512, "SKA".getBytes());
-        // symmetric cryptogram: (z, c, t)
-
+        byte[] zct;
+        zct = new byte[z.length + c.length + t.length];
+        System.arraycopy(z, 0, zct, 0, z.length );
+        System.arraycopy(c, 0, zct, z.length, c.length );
+        System.arraycopy(t, 0, zct, z.length + c.length, t.length );
+        return zct;
+    }
+    public static byte[] decrypt(byte [] zct, byte[] password){
+        // get z, c, t, from array start and end positions of byte zct input
+        byte[] z = new byte[256];
+        System.arraycopy(zct, 0, z, 0, z.length);
+        byte[] c = new byte[256];
+        System.arraycopy(zct, z.length, c, 0, c.length);
+        byte[] t = new byte[256];
+        System.arraycopy(zct, z.length + c.length, t, 0, t.length);
+        byte[] m = new byte[0];
+        byte[] tPrime = new byte[0];
+        byte[] zAndPw = new byte[z.length + password.length];
+        byte[] keAndKa = KMACXOF256(zAndPw, "", 1024, "S".getBytes());
+        byte[] ke = new byte[keAndKa.length / 2];
+        byte[] ka = new byte[keAndKa.length / 2];
+        System.arraycopy(keAndKa, 0, ke, 0, ke.length);
+        System.arraycopy(keAndKa, ke.length, ka, 0, ka.length);
+        m = KMACXOF256(ke, "", c.length, "SKE".getBytes()) ^ c;
+        tPrime = KMACXOF256(ka, m, 512, "SKA".getBytes());
+        if (Arrays.equals(tPrime, t)){
+            return m;
+        } else {
+            System.out.println("Decryption failed.");
+            return new byte[0];
+        }
     }
 
 }
