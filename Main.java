@@ -8,32 +8,64 @@ import java.util.Arrays;
 import java.security.SecureRandom;
 
 public class Main {
+    private static byte[] right_encode = {0, 1};
+
     public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
         // Validity Conditions: len(K) < 2^2040 and 0 ≤ L and len(S) < 2^2040
         if ((L & 7) != 0) {
             throw new RuntimeException("Implementation restriction: " +
                     "output length (in bits) must be a multiple of 8");
         }
-        byte[] output = new byte[10];
-        byte[] val = new byte[L >>> 3];
+
         //SHAKE shake = new SHAKE();
         //Sha3.kinit256(K, S); preprocess message
-        sha3_ctx_t c = new sha3_ctx_t();
+
+        // newX = bytepad(encode_string(K), 136) || X || right_encode(0).
+        byte[] bytepad = Internal.bytepad(Internal.encode_string(K), 136);
+        byte[] newX = new byte[bytepad.length + X.length + right_encode.length];
+        System.arraycopy(bytepad, 0, newX, 0, bytepad.length);
+        System.arraycopy(X, 0, newX, bytepad.length, X.length);
+        System.arraycopy(right_encode, 0, newX, bytepad.length + X.length, right_encode.length);
+
+        // N = bytepad(encode_string(N) || encode_string(S), 136) || X || 00
+        byte[] encodeN = Internal.encode_string("KMAC".getBytes());
+        byte[] encodeS = Internal.encode_string(S);
+        byte[] encode = new byte[encodeN.length + encodeS.length];
+        System.arraycopy(encodeN, 0, encode, 0, encodeN.length);
+        System.arraycopy(encodeS, 0, encode, encodeN.length, encodeS.length);
+
+        byte[] pad = Internal.bytepad(encode, 136);
+
+        //
+        byte[] kecString = new byte[pad.length + X.length + 2];
+        System.arraycopy(pad, 0, kecString, 0, pad.length);
+        System.arraycopy(X, 0, kecString, pad.length, X.length);
+        // Need to append 2 zero bits to the end
         
-        //sha3
-        Sha3.sha3_init(c, L);
+        sha3_ctx_t c = new sha3_ctx_t();
+        byte[] output = new byte[X.length];        
+        Sha3.sha3_init(c, X.length);
         Sha3.sha3_update(c, X, X.length);
         Sha3.sha3_final(output, c);
-        return val; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
+        return output; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
     } 
+
+    // cryptographic hash function
+    public static byte[] cryptographic_hash(byte[] m) {
+        return new byte[10];
+    }
+
+    
     public static void main(String[] args) {
-        //byte[] m = "aeioguhaeguhaeg".getBytes();
         //byte[] pw = new byte[0];
+        //byte[] m = "aeioguhaeguhaeg".getBytes();
         //byte[] zct = new byte[0];
         //String outputPath = "";
         //System.out.println("asdasd".getBytes().getClass());
-
-        cryptographic_hash("asdasd".getBytes());
+        byte[] input = {0x00, 0x01, 0x02, 0x03};
+        byte[] key = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+             0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F};
+        byte[] finalOutput = KMACXOF256(key, input, 512, "My Tagged Application".getBytes());
 
         /* 
         if (args.length > 0) {
@@ -91,6 +123,21 @@ public class Main {
         }
         */
     }
+
+    private static void print_bytes(byte[] byteString){
+        for (byte b : byteString) {
+            //reference: https://stackoverflow.com/questions/9280654/c-printing-bits
+                        
+            //print bits
+            for (int i = 7; i >= 0; i--){
+                int bit = (b >> i) & 1;
+                System.out.print(bit);
+            }
+            
+            System.out.print(" ");
+            System.out.print("= " + b + ", ");
+        }
+    }
     
 
     // file to bytes converter
@@ -104,10 +151,6 @@ public class Main {
         return fileBytes;
     }
 
-    // cryptographic hash function
-    public static byte[] cryptographic_hash(byte[] m) {
-        return KMACXOF256("".getBytes(), m, 512, "D".getBytes());
-    }
 /* 
     public byte[] authentication_tag(byte[] m, byte[] pw) {
         return KMACXOF256(pw, m, 512, "T".getBytes());
