@@ -213,7 +213,6 @@ public class Sha3 {
         sha3_init(sha3, mdlen);
         sha3_update(sha3, in, inlen);
         sha3_final(md, sha3);
-
         return md;
     }
 

@@ -8,12 +8,34 @@ import java.util.Arrays;
 import java.security.SecureRandom;
 
 public class Main {
+    public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
+        // Validity Conditions: len(K) < 2^2040 and 0 ≤ L and len(S) < 2^2040
+        if ((L & 7) != 0) {
+            throw new RuntimeException("Implementation restriction: " +
+                    "output length (in bits) must be a multiple of 8");
+        }
+        byte[] output = new byte[10];
+        byte[] val = new byte[L >>> 3];
+        //SHAKE shake = new SHAKE();
+        //Sha3.kinit256(K, S); preprocess message
+        sha3_ctx_t c = new sha3_ctx_t();
+        
+        //sha3
+        Sha3.sha3_init(c, L);
+        Sha3.sha3_update(c, X, X.length);
+        Sha3.sha3_final(output, c);
+        return val; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
+    } 
     public static void main(String[] args) {
-        byte[] m = new byte[0];
-        byte[] pw = new byte[0];
-        byte[] zct = new byte[0];
-        String outputPath = "";
+        //byte[] m = "aeioguhaeguhaeg".getBytes();
+        //byte[] pw = new byte[0];
+        //byte[] zct = new byte[0];
+        //String outputPath = "";
+        //System.out.println("asdasd".getBytes().getClass());
 
+        cryptographic_hash("asdasd".getBytes());
+
+        /* 
         if (args.length > 0) {
             /*
             argument expectations/outputs:
@@ -30,6 +52,7 @@ public class Main {
                 input: symmetric cryptogram (z,c,t), passphrase pw
                 output: decrypted byte array t_prime
              */
+            /* 
             switch (args[0]) {
                 case "hash":
                     m = fileToByteArray(args[1]);
@@ -66,7 +89,9 @@ public class Main {
             System.out.println("No acceptable arguments.");
             System.out.println("Please use the argument hash, auth, encrypt, or decrypt to use this program");
         }
+        */
     }
+    
 
     // file to bytes converter
     public static byte[] fileToByteArray(String path){
@@ -83,7 +108,7 @@ public class Main {
     public static byte[] cryptographic_hash(byte[] m) {
         return KMACXOF256("".getBytes(), m, 512, "D".getBytes());
     }
-
+/* 
     public byte[] authentication_tag(byte[] m, byte[] pw) {
         return KMACXOF256(pw, m, 512, "T".getBytes());
     }
@@ -148,5 +173,6 @@ public class Main {
         }
         // literally so i can commit
     }
+*/
 
 }

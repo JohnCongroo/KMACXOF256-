@@ -3,7 +3,36 @@ public class SHAKE {
 
     private byte[] key;
     private byte[] customization;
-    private sha3_ctx_t state;
+    private static sha3_ctx_t state;
+
+    public byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
+       //1. newX = bytepad(encode_string(K), 136) || X || right_encode(0).
+       byte[] bytepad = Internal.bytepad(Internal.encode_string(K), 136);
+       byte[] newX = new byte[bytepad.length + X.length + right_encode.length];
+       System.arraycopy(bytepad, 0, newX, 0, bytepad.length);
+       System.arraycopy(X, 0, newX, bytepad.length, X.length);
+       System.arraycopy(right_encode, 0, newX, bytepad.length + X.length, right_encode.length);
+       return cSHAKE256(newX, L, "KMAC".getBytes(), S);
+   }
+
+   public byte[] cSHAKE256(byte[] X, int L, byte[] N, byte[] S) {
+       //return KECCAK[512](bytepad(encode_string(N) || encode_string(S), 136) || X || 00, L).
+       byte[] encodeN = Internal.encode_string(N);
+       byte[] encodeS = Internal.encode_string(S);
+       byte[] encode = new byte[encodeN.length + encodeS.length];
+       System.arraycopy(encodeN, 0, encode, 0, encodeN.length);
+       System.arraycopy(encodeS, 0, encode, encodeN.length, encodeS.length);
+       byte[] pad = Internal.bytepad(encode, 136);
+
+       byte[] finalString = new byte[pad.length + X.length + 2];
+       System.arraycopy(pad, 0, finalString, 0, pad.length);
+       System.arraycopy(X, 0, finalString, pad.length, X.length);
+       // This needs to be fixed
+//        finalString[finalString.length - 2] = 0;
+//        finalString[finalString.length - 1] = 0;
+       // Need to implement KECCAK[512]
+       return Sha3.sha3(finalString, finalString.length, new byte[64], L / 2);
+   }
 
     public static long[] keccak_f(long[] st){
 
@@ -43,7 +72,6 @@ public class SHAKE {
     //https://stackoverflow.com/questions/14713102/what-does-and-0xff-do
             */
         // endianess conversion. this is redundant on little-endian targets
-
 
         for (i = 0; i < 25; i++) {
             long temp;
@@ -122,22 +150,20 @@ public class SHAKE {
     }
     public int sha3_update(byte[] data, int len)
     {
-        Internal internal = new Internal();
         // newX = bytepad(encode_string(K), 136) || X || right_encode(0).
-        byte[] bytepad = internal.bytepad(internal.encode_string(key), 136);
+        byte[] bytepad = Internal.bytepad(Internal.encode_string(key), 136);
         byte[] newX = new byte[bytepad.length + data.length + right_encode.length];
         System.arraycopy(bytepad, 0, newX, 0, bytepad.length);
         System.arraycopy(data, 0, newX, bytepad.length, data.length);
         System.arraycopy(right_encode, 0, newX, bytepad.length + data.length, right_encode.length);
 
-
         // N = bytepad(encode_string(N) || encode_string(S), 136) || X || 00
-        byte[] encodeN = internal.encode_string("KMAC".getBytes());
-        byte[] encodeS = internal.encode_string(customization);
+        byte[] encodeN = Internal.encode_string("KMAC".getBytes());
+        byte[] encodeS = Internal.encode_string(customization);
         byte[] encode = new byte[encodeN.length + encodeS.length];
         System.arraycopy(encodeN, 0, encode, 0, encodeN.length);
         System.arraycopy(encodeS, 0, encode, encodeN.length, encodeS.length);
-        byte[] pad = internal.bytepad(encode, 136);
+        byte[] pad = Internal.bytepad(encode, 136);
 
         byte[] kecString = new byte[pad.length + data.length + 2];
         System.arraycopy(pad, 0, kecString, 0, pad.length);
@@ -159,6 +185,35 @@ public class SHAKE {
         }
         state.pt = j;
 
+        return 1;
+    }
+
+    public static int sha3_init(sha3_ctx_t c, int mdlen){
+        int i;
+        for (i = 0; i < 25; i++) {
+            c.q[i] = 0;
+        }
+
+        c.mdlen = mdlen;
+        c.rsiz = 200 - 2 * mdlen;
+        c.pt = 0;
+
+        return 1;
+    }
+
+    public static int sha3_final(byte[] md)
+    {
+        int i;
+        state.b[state.pt] ^= (byte) 0x06;
+        state.update_q();
+        state.b[state.rsiz - 1] ^= (byte) 0x80;
+        state.update_q();
+        keccak_f(state.q);
+        state.update_b();
+
+        for (i = 0; i < state.mdlen; i++) {
+            md[i] = state.b[i];
+        }
         return 1;
     }
 
