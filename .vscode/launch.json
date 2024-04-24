@@ -9,6 +9,23 @@
       "projectName": "cryptoproject_300c6daf"
     },
     {
+<<<<<<< Updated upstream
+=======
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "Main",
+      "projectName": "cryptoproject_300c6daf"
+    },
+    {
+      "type": "java",
+      "name": "Internal",
+      "request": "launch",
+      "mainClass": "Internal",
+      "projectName": "cryptoproject_300c6daf"
+    },
+    {
+>>>>>>> Stashed changes
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",

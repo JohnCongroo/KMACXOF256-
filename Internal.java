@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 public class Internal { 
 	public static byte[] bytepad(byte[] X, int w) {
 		//validate input
@@ -19,6 +20,27 @@ public class Internal {
 		}
 	}
 	
+=======
+
+public class Internal {
+    public static byte[] bytepad(byte[] x, int w){
+        // 1
+        byte[] lEncode = left_encode(w);
+        byte[] z = new byte[lEncode.length + x.length];
+        System.arraycopy(lEncode, 0, z, 0, lEncode.length);
+        System.arraycopy(x, 0, z, lEncode.length, x.length);
+        //2 check not necessary, java works in bytes, will be encoded to be divisible by 8
+        //3
+        int i = 0;
+        byte[] z_padding = new byte[z.length];
+        while ((z_padding.length / 8) % w != 0){
+            z_padding = new byte[z.length + i];
+            i++;
+        }
+        System.arraycopy(z, 0, z_padding, 0, z.length);
+        return z_padding;
+    }
+>>>>>>> Stashed changes
 	public static byte[] encode_string(byte[] S) {
 		if (0 <= S.length && S.length < Math.pow(2, 2040)) {
 			byte[] left = left_encode(S.length);

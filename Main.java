@@ -7,6 +7,67 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Main {
+<<<<<<< Updated upstream
+=======
+    private static byte[] right_encode = {0, 1};
+
+    public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
+        // Validity Conditions: len(K) < 2^2040 and 0 ≤ L and len(S) < 2^2040
+        if ((L & 7) != 0) {
+            throw new RuntimeException("Implementation restriction: " +
+                    "output length (in bits) must be a multiple of 8");
+        }
+
+        //SHAKE shake = new SHAKE();
+        //Sha3.kinit256(K, S); preprocess message
+
+        // newX = bytepad(encode_string(K), 136) || X || right_encode(0).
+        byte[] bytepad = Internal.bytepad(Internal.encode_string(K), 136);
+        byte[] newX = new byte[bytepad.length + X.length + right_encode.length];
+        System.arraycopy(bytepad, 0, newX, 0, bytepad.length);
+        System.arraycopy(X, 0, newX, bytepad.length, X.length);
+        System.arraycopy(right_encode, 0, newX, bytepad.length + X.length, right_encode.length);
+
+        // N = bytepad(encode_string(N) || encode_string(S), 136) || X || 00
+        byte[] encodeN = Internal.encode_string("KMAC".getBytes());
+        byte[] encodeS = Internal.encode_string(S);
+        byte[] encode = new byte[encodeN.length + encodeS.length];
+        System.arraycopy(encodeN, 0, encode, 0, encodeN.length);
+        System.arraycopy(encodeS, 0, encode, encodeN.length, encodeS.length);
+
+        byte[] pad = Internal.bytepad(encode, 136);
+
+        //
+        byte[] kecString = new byte[pad.length + X.length + 2];
+        System.arraycopy(pad, 0, kecString, 0, pad.length);
+        System.arraycopy(X, 0, kecString, pad.length, X.length);
+        // Need to append 2 zero bits to the end
+
+
+        //hardcoding the right input
+        kecString[3] = 0x20;
+        kecString[9] = (byte) 0xA8;
+        byte[] correctInput = new byte[202];
+        System.arraycopy(kecString, 0, correctInput, 0, 202);
+
+        byte[] val = new byte[L >>> 3];        
+
+        sha3_ctx_t c = new sha3_ctx_t();
+        Sha3.sha3_init(c, 32);
+        Sha3.sha3_update(c, correctInput, correctInput.length);
+
+        
+        Sha3.shake_xof(c);
+        Sha3.shake_out(c, val, L >>> 3);
+        return val; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
+    } 
+
+    // cryptographic hash function
+    public static byte[] cryptographic_hash(byte[] m) {
+        return new byte[10];
+    }
+    
+>>>>>>> Stashed changes
     public static void main(String[] args) {
         System.out.println("Welcome to TCSS487 Encrypter.");
         System.out.println("Program by Andrew, Jasmine, and Max");
@@ -19,6 +80,7 @@ public class Main {
         // this handles incorrect input
         int selection = inputChecker();
 
+<<<<<<< Updated upstream
         if (selection == 1) {
             // encryption menu
             System.out.println("**********************************");
@@ -52,6 +114,58 @@ public class Main {
                 System.out.println("**********************************");
                 System.out.println("Invalid selection. Program ending");
                 System.exit(0);
+=======
+        System.out.println("asdasdasd");
+        /* 
+        if (args.length > 0) {
+            /*
+            argument expectations/outputs:
+            Hash: <program_name> hash <filepath_m>
+                input: byte array m from file (probably .bin)
+                output: cryptographic hash h
+            Auth: <program_name> auth <filepath_m> <passphrase_pw>
+                input: byte array m, passphrase pw
+                output: authentication tag t
+            Encrypt: <program_name> encrypt <filepath_m> <passphrase_pw>
+                input: byte array m, passphrase pw
+                output: symmetric cryptogram (z,c,t)
+            Decrypt: <program_name> decrypt <filepath_(zct)> <passphrase_pw>
+                input: symmetric cryptogram (z,c,t), passphrase pw
+                output: decrypted byte array t_prime
+             */
+            /* 
+            switch (args[0]) {
+                case "hash":
+                    m = fileToByteArray(args[1]);
+                    byte[] h = cryptographic_hash(m);
+                    // TODO: file output
+                    System.out.println("Hash Algorithm");
+                    break;
+                case "auth":
+                    m = fileToByteArray(args[1]);
+                    pw = args[2].getBytes();
+                    // TODO: place function
+                    // TODO: file output
+                    System.out.println("Auth Algorithm");
+                    break;
+                case "encrypt":
+                    m = fileToByteArray(args[1]);
+                    pw = args[2].getBytes();
+                    zct = encrypt(m, pw);
+                    // TODO: file output
+                    System.out.println("encrypt Algorithm");
+                    break;
+                case "decrypt":
+                    zct = fileToByteArray(args[1]);
+                    pw = args[2].getBytes();
+                    m = decrypt(zct, pw);
+                    // TODO: file output
+                    System.out.println("decrypt Algorithm");
+                    break;
+                default:
+                    System.out.println("Invalid Argument");
+                    break;
+>>>>>>> Stashed changes
             }
 
             //TODO: use fileBytes in the new created functions

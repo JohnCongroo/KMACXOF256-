@@ -31,7 +31,7 @@ public class sha3_ctx_t{
             temp = q[i];
             for (int j = 0; j < 8; j++){
                 b[j+i*8] = (byte) (temp & 0xFF); 
-                temp = temp >> 8;
+                temp = temp >>> 8;
             }
             
         }
