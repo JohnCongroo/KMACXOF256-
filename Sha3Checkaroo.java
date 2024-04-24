@@ -1,10 +1,5 @@
 //reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
 import java.util.Arrays;
-<<<<<<< Updated upstream
-
-
-=======
->>>>>>> Stashed changes
 public class Sha3Checkaroo{
     // read a hex string, return byte length or -1 on error.
     static int test_hexdigit(char ch)
@@ -120,15 +115,12 @@ public class Sha3Checkaroo{
         return fails;
     }
 
-<<<<<<< Updated upstream
-=======
     public static void main(String args[]){
         if (test_sha3() == 0 && test_shake() == 0){
             System.out.println("No sha3 or shake errors");
             //test_speed();
         }
     }
->>>>>>> Stashed changes
     static int test_shake()
     {
         // Test vectors have bytes 480..511 of XOF output for given inputs.
@@ -147,11 +139,6 @@ public class Sha3Checkaroo{
 
         int i, j, fails;
         sha3_ctx_t sha3 = new sha3_ctx_t();
-<<<<<<< Updated upstream
-        byte[] buf = new byte[32];
-        byte[] ref = new byte[32];
-=======
->>>>>>> Stashed changes
 
         fails = 0;
 
@@ -160,15 +147,6 @@ public class Sha3Checkaroo{
             byte[] ref = new byte[32];
     
             if ((i & 1) == 0) {             // test each twice
-<<<<<<< Updated upstream
-                Sha3.sha3_init(sha3, 487 * 2);
-            } else {
-                Sha3.sha3_init(sha3, 487 * 4);
-            }
-
-            if (i >= 2) {                   // 1600-bit test pattern
-                Arrays.fill(buf, (byte) 0xA3);
-=======
                 Sha3.sha3_init(sha3, 16);
             } else {
                 Sha3.sha3_init(sha3, 32);
@@ -179,22 +157,16 @@ public class Sha3Checkaroo{
                 for(int x = 0; x < 20; x++){
                     buf[x] = (byte) 0xA3;
                 }
->>>>>>> Stashed changes
                 for (j = 0; j < 200; j += 20)
                     Sha3.sha3_update(sha3, buf, 20);
             }
 
             Sha3.shake_xof(sha3);               // switch to extensible output
 
-<<<<<<< Updated upstream
-            for (j = 0; j < 512; j += 32)   // output. discard bytes 0..479
-            Sha3.shake_out(sha3, buf, 32);
-=======
             for (j = 0; j < 512; j += 32){
                 Sha3.shake_out(sha3, buf, 32);
                 Sha3.areWeShaking = false;
             }   // output. discard bytes 0..479
->>>>>>> Stashed changes
 
            
             /* 
@@ -207,23 +179,8 @@ public class Sha3Checkaroo{
 */
             // compare to reference
             test_readhex(ref, testhex[i], ref.length);
-<<<<<<< Updated upstream
-            System.out.print("\nref: ");
-            for (int x = 0; x < ref.length; x++){
-                System.out.printf("%02X ", ref[x]);
-            }
-            System.out.print("");
-            System.out.print("\nbuf: ");
-            for (int x = 0; x < buf.length; x++){
-                System.out.printf("%02X ", buf[x]);
-            }
-            
-            if (Arrays.equals(buf, ref) == false) {
-                System.out.printf("SHAKE, len  test FAILED");
-=======
             if (!Arrays.equals(buf, ref)) {
                 System.out.println("SHAKE, len %d test FAILED");
->>>>>>> Stashed changes
                 fails++;
             }
 
@@ -246,22 +203,8 @@ public class Sha3Checkaroo{
         }
         return fails;
     }
-<<<<<<< Updated upstream
-
-    public static void main(String args[]){
-        if (test_sha3() == 0 && test_shake() == 0){
-            System.out.println("sha-3 tests finished with no errors");
-            //test_speed();
-        }
-    }
-}
-    
-    // test for SHAKE128 and SHAKE256
-
-=======
 } 
     // test for SHAKE128 and SHAKE256
->>>>>>> Stashed changes
     // test speed of the comp
 /* 
     void test_speed()

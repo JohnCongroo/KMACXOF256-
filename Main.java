@@ -7,8 +7,6 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Main {
-<<<<<<< Updated upstream
-=======
     private static byte[] right_encode = {0, 1};
 
     public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
@@ -67,7 +65,6 @@ public class Main {
         return new byte[10];
     }
     
->>>>>>> Stashed changes
     public static void main(String[] args) {
         System.out.println("Welcome to TCSS487 Encrypter.");
         System.out.println("Program by Andrew, Jasmine, and Max");
@@ -80,42 +77,8 @@ public class Main {
         // this handles incorrect input
         int selection = inputChecker();
 
-<<<<<<< Updated upstream
-        if (selection == 1) {
-            // encryption menu
-            System.out.println("**********************************");
-            System.out.println("Encryption selected.");
-            System.out.println("Type the number from the list to select input type:");
-            System.out.println("1. From .txt file");
-            System.out.println("2. From console input");
-            // declares
-
-            selection = inputChecker();
-            // Encryption from File
-            if (selection == 1){
-                // Encryption from File selection
-                System.out.println("**********************************");
-                System.out.println("Please input your path:");
-                in = new Scanner(System.in);
-                String filePath = in.nextLine();
-                try {
-                    fileBytes = Files.readAllBytes(Paths.get(filePath));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            // Encryption from console menu
-            } else if (selection == 2){
-                System.out.println("**********************************");
-                System.out.println("Please input your text to be encrypted:");
-                String consoleInput = in.next();
-                fileBytes = consoleInput.getBytes();
-
-            } else {
-                System.out.println("**********************************");
-                System.out.println("Invalid selection. Program ending");
-                System.exit(0);
-=======
         System.out.println("asdasdasd");
+    }
         /* 
         if (args.length > 0) {
             /*
@@ -165,7 +128,6 @@ public class Main {
                 default:
                     System.out.println("Invalid Argument");
                     break;
->>>>>>> Stashed changes
             }
 
             //TODO: use fileBytes in the new created functions

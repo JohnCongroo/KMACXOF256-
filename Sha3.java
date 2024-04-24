@@ -4,26 +4,9 @@ import java.math.BigInteger;
 
 
 public class Sha3 {
-<<<<<<< Updated upstream
-=======
 
     static boolean areWeShaking = false;
     private byte[] right_encode = {0, 1};
->>>>>>> Stashed changes
-
-
-    private static long ROTL64(long x, int y){
-        if (y == 0){
-           return x; 
-        }
-        long test1 = (x << y) & 0xFFFFFFFFFFFFFFFFL;
-        //J C3 69 D0 0B 6F 0A 7D 6A
-        //C 6A 7D 0B 6E 0B D1 68 C2
-        long test2 = x >>> (64 - y);
-        long test3 = test1 | test2;
-
-        return (((x) << (y)) | ((x) >>> (64 - (y))));
-    }
 
     public static long[] keccak_f(long[] st){
 
@@ -68,13 +51,8 @@ public class Sha3 {
             v = st[i];
             long temp = 0;
             for (j = 0; j < 8; j++){
-<<<<<<< Updated upstream
-                temp = temp << 8; //to make room
-                temp = temp | (v >> (j*8) & 0xFF); //grab only the relevant bits
-=======
                 temp = temp << 8;
                 temp = temp | (v >>> (j*8) & 0xFFL);
->>>>>>> Stashed changes
             }
             st[i] = temp;
         }
@@ -92,9 +70,6 @@ public class Sha3 {
             }
         }
 
-
-        
-/* */
         // actual iteration
         //24 = keccakrounds
         for (r = 0; r < 24; r++) {
@@ -104,16 +79,8 @@ public class Sha3 {
                 bc[i] = (st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20]);
 
             for (i = 0; i < 5; i++) {
-<<<<<<< Updated upstream
                 //had to change built in rotc to long.rotateleft, off by 1 error, 
                 t = ((bc[(i + 4) % 5] ^ Long.rotateLeft(bc[(i + 1) % 5], 1)));
-=======
-                long test1 = bc[(i + 4) % 5];
-                long test2 = ROTL64(bc[(i + 1) % 5], 1);
-                long test3 = bc[(i + 1) % 5];
-
-                t = (test1 ^ test2);
->>>>>>> Stashed changes
                 for (j = 0; j < 25; j += 5)
                     st[j + i] ^= t;
             }
@@ -130,7 +97,7 @@ public class Sha3 {
         for (i = 0; i < 24; i++) {
             j = keccakf_piln[i];
             bc[0] = st[j];
-            st[j] =  ROTL64(t, keccakf_rotc[i]);
+            st[j] =  Long.rotateLeft(t, keccakf_rotc[i]);
             t = bc[0];
         }
 

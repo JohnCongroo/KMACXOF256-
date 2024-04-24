@@ -1,26 +1,3 @@
-<<<<<<< Updated upstream
-public class Internal { 
-	public static byte[] bytepad(byte[] X, int w) {
-		//validate input
-		if (w > 0) {
-			// 1. z = left_encode(w) || X.
-			byte[] left = left_encode(w);
-			byte[] z = new byte[w * ((left.length + X.length + w - 1) / w)];
-			System.arraycopy(left, 0, z, 0, left.length);
-			System.arraycopy(X, 0, z, left.length, X.length);
-			// 2. while len(z) mod 8 != 0: z = z || 0
-			// 3. while (len(z)/8) mod w ≠ 0: z = z || 00000000
-			for (int i = left.length + X.length; i < z.length; i++) {
-				z[i] = (byte)0;
-			}
-			// 4. return z
-			return z;
-		} else {
-			throw new IllegalArgumentException("error");
-		}
-	}
-	
-=======
 
 public class Internal {
     public static byte[] bytepad(byte[] x, int w){
@@ -40,7 +17,6 @@ public class Internal {
         System.arraycopy(z, 0, z_padding, 0, z.length);
         return z_padding;
     }
->>>>>>> Stashed changes
 	public static byte[] encode_string(byte[] S) {
 		if (0 <= S.length && S.length < Math.pow(2, 2040)) {
 			byte[] left = left_encode(S.length);
