@@ -1,8 +1,5 @@
 //reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
 
-import java.math.BigInteger;
-
-
 public class Sha3 {
 
     static boolean areWeShaking = false;
@@ -39,35 +36,31 @@ public class Sha3 {
 
         long v;
 
-        /* 
-            //for java is always big-endian, C is system-dependent 
-            #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-                uint8_t *v;
-//https://stackoverflow.com/questions/14713102/what-does-and-0xff-do
-        */
-        // endianess conversion. this is redundant on little-endian targets
-
         for (i = 0; i < 25; i++) {
             v = st[i];
-            long temp = 0;
-            for (j = 0; j < 8; j++){
-                temp = temp << 8;
-                temp = temp | (v >>> (j*8) & 0xFFL);
+            st[i] = ((long) v & 0xFFL)  << 56  | 
+                    (((long) v & 0xFF00L) << 40)   |
+                    (((long) v & 0xFF0000L)<< 24)  |
+                    (((long) v & 0xFF000000L) << 8)  |
+                    (((long) v & 0xFF00000000L) >>> 8 )  |
+                    (((long) v & 0xFF0000000000L) >>> 24 )  |
+                    (((long) v & 0xFF000000000000L) >>> 40 )  |
+                    (((long) v & 0xFF00000000000000L) >>> 56);
             }
-            st[i] = temp;
-        }
-
-        if (areWeShaking == true){  
+        
+        if (areWeShaking == true){
             for (i = 0; i < 25; i++) {
-                long temp;
                 v = st[i];
-                temp = 0;
-                for (j = 0; j < 8; j++){
-                    temp = temp << 8;
-                    temp = temp | (v >>> (j*8) & 0xFFL);
+                st[i] = ((long) v & 0xFFL)  << 56  | 
+                        (((long) v & 0xFF00L) << 40)   |
+                        (((long) v & 0xFF0000L)<< 24)  |
+                        (((long) v & 0xFF000000L) << 8)  |
+                        (((long) v & 0xFF00000000L) >>> 8 )  |
+                        (((long) v & 0xFF0000000000L) >>> 24 )  |
+                        (((long) v & 0xFF000000000000L) >>> 40 )  |
+                        (((long) v & 0xFF00000000000000L) >>> 56);
                 }
-                st[i] = temp;
-            }
+
         }
 
         // actual iteration
@@ -111,18 +104,29 @@ public class Sha3 {
         //  Iota
         st[0] ^= keccakf_rndc[r];     
         }
-
-/* 
+        
+          /* 
         for (i = 0; i < 25; i++) {
             v = st[i];
-            long temp = 0;
-            for (j = 0; j < 8; j++){
-                temp = temp << 8;
-                temp = temp | (v >> (j*8) & 0xFF);
+            long test = ((long) v & 0xFFL) << 56;
+            long test2 = ((long) v & 0xFF00L) << 40;
+            long test3 = ((long) v & 0xFF0000L) << 24;
+            long test4 = ((long) v & 0xFF000000L) << 8;
+            long test5 = ((long) v & 0xFF00000000L) >> 8;
+            long test6 = ((long) v & 0xFF0000000000L) >> 24;
+            long test7 = ((long) v & 0xFF000000000000L) >> 40;
+            long test8 = (long) (v >> 56) & 0xFF;
+
+            st[i] = ((long) v & 0xFFL)  << 56                | 
+                    (((long) v & 0xFF00L) << 40)             |
+                    (((long) v & 0xFF0000L)<< 24)            |
+                    (((long) v & 0xFF000000L) << 8)          |
+                    (((long) v & 0xFF00000000L) >> 8 )       |
+                    (((long) v & 0xFF0000000000L) >> 24 )    |
+                    (((long) v & 0xFF000000000000L) >> 40 )  |
+                    (((long) v & 0xFF00000000000000L) >> 56);
             }
-            st[i] = temp;
-    }
-    */
+*/
         return st;
     }
 
@@ -131,8 +135,9 @@ public class Sha3 {
         int i;
         for (i = 0; i < 25; i++) {
             c.q[i] = 0;
-            //this was the problem
-            c.update_b();
+        }
+        for (i = 0; i < 200; i++) {
+            c.b[i] = 0;
         }
 
         //initializating state array params
@@ -148,6 +153,7 @@ public class Sha3 {
 
     public static int sha3_update(sha3_ctx_t c, byte[] data, int len)
     {
+
         int i;
         int j;
 

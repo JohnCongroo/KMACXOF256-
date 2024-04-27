@@ -22,7 +22,6 @@ public class Internal {
 			byte[] left = left_encode(S.length);
 			byte[] byteString = new byte[left.length + S.length];
 			
-			
 			// 1. Return left_encode(len(S)) || S.
 			int index = 0;
 			for (byte encode: left) {
@@ -123,10 +122,7 @@ public class Internal {
         System.out.println("left encode output");
         print_bytes(leftYield);
 
-
-
         //byte[] test = encode_string("");
-
 
     }
 
@@ -146,7 +142,6 @@ public class Internal {
         }
     }
 }
-
 
 //clarifications needed:
 

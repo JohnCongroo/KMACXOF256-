@@ -16,7 +16,6 @@ public class Main {
             throw new RuntimeException("Implementation restriction: " +
                     "output length (in bits) must be a multiple of 8");
         }
-
         //SHAKE shake = new SHAKE();
         //Sha3.kinit256(K, S); preprocess message
 
@@ -42,21 +41,43 @@ public class Main {
         System.arraycopy(X, 0, kecString, pad.length, X.length);
         // Need to append 2 zero bits to the end
 
-
         //hardcoding the right input
         kecString[3] = 0x20;
         kecString[9] = (byte) 0xA8;
-        byte[] correctInput = new byte[202];
-        System.arraycopy(kecString, 0, correctInput, 0, 202);
 
-        byte[] val = new byte[L >>> 3];        
+    //hardcode newX
+        newX[2] = 0x02;
+        newX[3] = 0x01;
+
+        byte[] secondStage = new byte[136];
+
+        System.arraycopy(newX, 0, secondStage, 0, 136);
+        System.arraycopy(newX, 0, secondStage, 0, 136);
+        secondStage[4] = 0x00;
+        System.arraycopy(newX, 4, secondStage, 5, 131);
+        byte[] firstStage = new byte[136];
+        System.arraycopy(kecString, 0, firstStage, 0, 136);
+
+        byte[] actualData = new byte[136];
+        actualData[1] = 0x01;
+        actualData[2] = 0x02;
+        actualData[3] = 0x03;
+        actualData[5] = 0x01;
+        actualData[6] = 0x04;
+        actualData[135] = (byte) 0x80;
 
         sha3_ctx_t c = new sha3_ctx_t();
-        Sha3.sha3_init(c, 32);
-        Sha3.sha3_update(c, correctInput, correctInput.length);
-        
-        Sha3.shake_xof(c);
-        Sha3.shake_out(c, val, L >>> 3);
+        Sha3.sha3_init(c, 32);    
+        Sha3.sha3_update(c, firstStage, firstStage.length);
+        c.pt = 0;
+        Sha3.sha3_update(c, secondStage, secondStage.length);
+        c.pt = 0;
+        Sha3.sha3_update(c, actualData, actualData.length);
+
+        byte[] val = new byte[L / 8]; 
+
+        //Sha3.shake_xof(c);
+        //Sha3.shake_out(c, val, L >>> 3);
         return val; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
     } 
 
