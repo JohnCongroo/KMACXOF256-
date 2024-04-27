@@ -15,7 +15,6 @@ public class Sha3Checkaroo{
 
     static int test_readhex(byte[] buf, String str, int maxbytes)
     {
-
         int i = 0, h, l;
         //System.out.println(str);
         for (i = 0; i < str.length() / 2; i++) {

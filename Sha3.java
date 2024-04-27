@@ -104,7 +104,7 @@ public class Sha3 {
         //  Iota
         st[0] ^= keccakf_rndc[r];     
         }
-        
+
           /* 
         for (i = 0; i < 25; i++) {
             v = st[i];
@@ -208,7 +208,10 @@ public class Sha3 {
 
     public static void shake_xof(sha3_ctx_t c)
     {
-        c.b[c.pt] ^= (byte) 0x1F;
+
+
+        
+        c.b[c.pt] ^= (byte) 0x04;
         c.update_q();
         c.b[c.rsiz - 1] ^= (byte) 0x80;
         c.update_q();
