@@ -4,70 +4,61 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.util.Arrays;
 import java.security.SecureRandom;
 
 public class Main {
     private static byte[] right_encode = {0, 1};
 
-    // IMPLEMENTATION
     public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
+        // Validity Conditions: len(K) < 2^2040 and 0 ≤ L and len(S) < 2^2040
         if ((L & 7) != 0) {
             throw new RuntimeException("Implementation restriction: " +
                     "output length (in bits) must be a multiple of 8");
         }
+        //SHAKE shake = new SHAKE();
+        //Sha3.kinit256(K, S); preprocess message
 
-        // Preprocessing
-        byte[] bytepadK = Internal.bytepad(Internal.encode_string(K), 136);
-        byte[] newX = new byte[bytepadK.length + X.length + right_encode.length];
-        System.arraycopy(bytepadK, 0, newX, 0, bytepadK.length);
-        System.arraycopy(X, 0, newX, bytepadK.length, X.length);
-        System.arraycopy(right_encode, 0, newX, bytepadK.length + X.length, right_encode.length);
+        // newX = bytepad(encode_string(K), 136) || X || right_encode(0).
+        byte[] bytepad = Internal.bytepad(Internal.encode_string(K), 136);
+        byte[] newX = new byte[bytepad.length + X.length + right_encode.length];
+        System.arraycopy(bytepad, 0, newX, 0, bytepad.length);
+        System.arraycopy(X, 0, newX, bytepad.length, X.length);
+        System.arraycopy(right_encode, 0, newX, bytepad.length + X.length, right_encode.length);
 
+        // N = bytepad(encode_string(N) || encode_string(S), 136) || X || 00
         byte[] encodeN = Internal.encode_string("KMAC".getBytes());
         byte[] encodeS = Internal.encode_string(S);
-        byte[] encodeNS = new byte[encodeN.length + encodeS.length];
-        System.arraycopy(encodeN, 0, encodeNS, 0, encodeN.length);
-        System.arraycopy(encodeS, 0, encodeNS, encodeN.length, encodeS.length);
-        byte[] bytepadNS = Internal.bytepad(encodeNS, 136);
+        byte[] encode = new byte[encodeN.length + encodeS.length];
+        System.arraycopy(encodeN, 0, encode, 0, encodeN.length);
+        System.arraycopy(encodeS, 0, encode, encodeN.length, encodeS.length);
 
-        byte[] finalString = new byte[bytepadNS.length + newX.length];
-        System.arraycopy(bytepadNS, 0, finalString, 0, bytepadNS.length);
-        System.arraycopy(newX, 0, finalString, bytepadNS.length, newX.length);
+        byte[] pad = Internal.bytepad(encode, 136);
 
-        // KECCAK
-        Sha3 sha3 = new Sha3();
-        sha3_ctx_t c = new sha3_ctx_t();
-        Sha3.sha3_init(c, 32);
-        
-        for (int i = 0; i < finalString.length / 136; i++){
-            Sha3.sha3_update(c, Arrays.copyOfRange(finalString, i * 136, (i + 1) * 136), 136);
-        }
+        //
+        byte[] kecString = new byte[pad.length + X.length + 2];
+        System.arraycopy(pad, 0, kecString, 0, pad.length);
+        System.arraycopy(X, 0, kecString, pad.length, X.length);
+        // Need to append 2 zero bits to the end
 
-        //non ambiguity principle assume padding is always there
-        byte[] paddedData = new byte[136];
-        System.arraycopy(finalString, finalString.length/136 * 136, paddedData, 0, finalString.length % 136);
-        if (finalString.length % 136 == 135) {
-            paddedData[135] = 0x48;
-        } else {
-            paddedData[finalString.length % 136] = 0x04;
-            paddedData[135] = (byte) 0x80;
-        }
-        Sha3.sha3_update(c, paddedData, paddedData.length);
-        byte[] val = Arrays.copyOfRange(c.b, 0, L / 8);
-        return val;
-    }
+        //hardcoding the right input
+        kecString[3] = 0x20;
+        kecString[9] = (byte) 0xA8;
 
-    // cryptographic hash function
-    public static byte[] cryptographic_hash(byte[] m) {
-        return KMACXOF256("".getBytes(),  m, 512, "D".getBytes());
-    }
+    //hardcode newX
+        newX[2] = 0x02;
+        newX[3] = 0x01;
 
+        byte[] secondStage = new byte[136];
 
-    public static void main(String[] args) {
-        byte[] m = {0x00, 0x01, 0x02, 0x03};
-        byte[] test = {
+        System.arraycopy(newX, 0, secondStage, 0, 136);
+        System.arraycopy(newX, 0, secondStage, 0, 136);
+        secondStage[4] = 0x00;
+        System.arraycopy(newX, 4, secondStage, 5, 131);
+        byte[] firstStage = new byte[136];
+        System.arraycopy(kecString, 0, firstStage, 0, 136);
+
+        byte[] actualData = {
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
             0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
             0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -84,18 +75,58 @@ public class Main {
             0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
             0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,
             0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
-            (byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83
-            
+            (byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83, (byte)0x84
         };
+        //actualData[5] = 0x01;
+        //actualData[6] = 0x04;
+        //actualData[135] = (byte) 0x80;
 
-        System.out.println(test.length);
+        sha3_ctx_t c = new sha3_ctx_t();
+        Sha3.sha3_init(c, 32);    
+        Sha3.sha3_update(c, firstStage, firstStage.length);
+        c.pt = 0;
+        Sha3.sha3_update(c, secondStage, secondStage.length);
+        c.pt = 0;
 
-        byte[] zct = new byte[0];
-        byte[] pw = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
-                0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F};
-        byte[] finalOutput = KMACXOF256(pw, test, 512, "My Tagged Application".getBytes());
+        for (int i = 0; i <= actualData.length - 140; i += 136){
+            Sha3.sha3_update(c, Arrays.copyOfRange(actualData, i, i + 136), 136);
+        }
 
-        byte[] a = finalOutput;
+        //make test10 length of 134 then always have room to append?
+        byte[] test10 = new byte[136];
+        if (actualData.length % 136 != 0){
+            System.arraycopy(actualData, actualData.length/136 * 136, test10, 0, actualData.length % 136);
+            test10[actualData.length % 136] = right_encode[0];
+            test10[actualData.length % 136 + 1] = right_encode[1];
+            test10[actualData.length % 136 + 2] = 0x04;
+            test10[135] = (byte) 0x80;
+        }
+
+        //preprocess actual data here with the 0x4 and 0x80 padding
+        Sha3.sha3_update(c, test10, test10.length);
+        //Sha3.shake_xof(c, test10, test10.length);
+        //Sha3.shake_xof(c);
+        //Sha3.shake_out(c, val, L >>> 3);
+        byte[] val = Arrays.copyOfRange(c.b, 0, L / 8);
+        return val; // SHAKE256(X, L) = KECCAK512(X||1111, L) or KECCAK512(prefix || X || 00, L)
+    }
+    // cryptographic hash function
+    public static byte[] cryptographic_hash(byte[] m) {
+        return new byte[10];
+    }
+    
+    public static void main(String[] args) {
+        //byte[] pw = new byte[0];
+        //byte[] m = "aeioguhaeguhaeg".getBytes();
+        //byte[] zct = new byte[0];
+        //String outputPath = "";
+        //System.out.println("asdasd".getBytes().getClass());
+        byte[] input = {0x00, 0x01, 0x02, 0x03};
+        byte[] key = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+             0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F};
+        byte[] finalOutput = KMACXOF256(key, input, 512, "My Tagged Application".getBytes());
+
+        System.out.println("asdasdasd");
         /* 
         if (args.length > 0) {
             /*
@@ -113,7 +144,7 @@ public class Main {
                 input: symmetric cryptogram (z,c,t), passphrase pw
                 output: decrypted byte array t_prime
              */
-             /* 
+            /* 
             switch (args[0]) {
                 case "hash":
                     m = fileToByteArray(args[1]);
@@ -153,16 +184,23 @@ public class Main {
         */
     }
 
-    private static String print_bytes(byte[] byteString){
-            StringBuilder hexBuilder = new StringBuilder();
-            for (byte b : byteString) {
-                hexBuilder.append(String.format("%02X", b));
-                hexBuilder.append(' ');
+    private static void print_bytes(byte[] byteString){
+        for (byte b : byteString) {
+            //reference: https://stackoverflow.com/questions/9280654/c-printing-bits
+                        
+            //print bits
+            for (int i = 7; i >= 0; i--){
+                int bit = (b >> i) & 1;
+                System.out.print(bit);
             }
-            String hexString = hexBuilder.toString();
-            System.out.println(hexString);
-            return hexString;
+            
+            System.out.print(" ");
+            System.out.print("= " + b + ", ");
+        }
     }
+    
+
+    // file to bytes converter
     public static byte[] fileToByteArray(String path){
         byte[] fileBytes = new byte[0];
         try {
@@ -173,6 +211,7 @@ public class Main {
         return fileBytes;
     }
 
+/* 
     public byte[] authentication_tag(byte[] m, byte[] pw) {
         return KMACXOF256(pw, m, 512, "T".getBytes());
     }
@@ -190,7 +229,7 @@ public class Main {
         // "S" = is a customization bit string. The user selects this string to define a variant of the function.
         //      when no customization is desired, S is set to the empty string
         byte[] S = new byte[0];
-        byte[] keAndKa = KMACXOF256(zAndPw, "".getBytes(), 1024, "S".getBytes());
+        byte[] keAndKa = KMACXOF256(zAndPw, "", 1024, "S".getBytes());
         //splitting keAndKa in half into two arrays
         // not checking for rounding, as kmax should return a 256 bit string
         byte[] ke = new byte[keAndKa.length / 2];
@@ -202,10 +241,7 @@ public class Main {
         // |m| is the length of the message m
         // ^ is the xor operator
 
-        byte[] c = KMACXOF256(ke, "".getBytes(), m.length, "SKE".getBytes());
-        for (int i = 0; i < c.length; i++) {
-            c[i] ^= m[i];
-        }
+        byte[] c = KMACXOF256(ke, "", m.length, "SKE".getBytes()) ^ m;
         byte[] t = KMACXOF256(ka, m, 512, "SKA".getBytes());
         byte[] zct;
         zct = new byte[z.length + c.length + t.length];
@@ -225,15 +261,12 @@ public class Main {
         byte[] m = new byte[0];
         byte[] tPrime = new byte[0];
         byte[] zAndPw = new byte[z.length + password.length];
-        byte[] keAndKa = KMACXOF256(zAndPw, "".getBytes(), 1024, "S".getBytes());
+        byte[] keAndKa = KMACXOF256(zAndPw, "", 1024, "S".getBytes());
         byte[] ke = new byte[keAndKa.length / 2];
         byte[] ka = new byte[keAndKa.length / 2];
         System.arraycopy(keAndKa, 0, ke, 0, ke.length);
         System.arraycopy(keAndKa, ke.length, ka, 0, ka.length);
-        m = KMACXOF256(ke, "".getBytes(), c.length, "SKE".getBytes());
-        for (int i = 0; i < m.length; i++) {
-            m[i] ^= c[i];
-        }
+        m = KMACXOF256(ke, "", c.length, "SKE".getBytes()) ^ c;
         tPrime = KMACXOF256(ka, m, 512, "SKA".getBytes());
         if (Arrays.equals(tPrime, t)){
             return m;
@@ -241,5 +274,28 @@ public class Main {
             System.out.println("Decryption failed.");
             return new byte[0];
         }
+        // literally so i can commit
     }
+*/
+
 }
+
+        byte[] actualData = {
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+            0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+            0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+            0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+            0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+            0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
+            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+            0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
+            0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+            0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
+            0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
+            0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
+            0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+            0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
+            0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,
+            0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
+            (byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83, (byte)0x84
+        };

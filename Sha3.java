@@ -208,9 +208,6 @@ public class Sha3 {
 
     public static void shake_xof(sha3_ctx_t c)
     {
-
-
-        
         c.b[c.pt] ^= (byte) 0x04;
         c.update_q();
         c.b[c.rsiz - 1] ^= (byte) 0x80;
