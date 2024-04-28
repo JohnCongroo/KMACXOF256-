@@ -2,6 +2,7 @@
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLOutput;
@@ -168,61 +169,67 @@ public class Main {
         byte[] finalOutput = KMACXOF256(pw, sample_6, 512, "My Tagged Application".getBytes());
 
         byte[] a = finalOutput;
-        /* 
-        if (args.length > 0) {
-            /*
-            argument expectations/outputs:
-            Hash: <program_name> hash <filepath_m>
-                input: byte array m from file (probably .bin)
-                output: cryptographic hash h
-            Auth: <program_name> auth <filepath_m> <passphrase_pw>
-                input: byte array m, passphrase pw
-                output: authentication tag t
-            Encrypt: <program_name> encrypt <filepath_m> <passphrase_pw>
-                input: byte array m, passphrase pw
-                output: symmetric cryptogram (z,c,t)
-            Decrypt: <program_name> decrypt <filepath_(zct)> <passphrase_pw>
-                input: symmetric cryptogram (z,c,t), passphrase pw
-                output: decrypted byte array t_prime
-             */
-             /* 
-            switch (args[0]) {
-                case "hash":
-                    m = fileToByteArray(args[1]);
-                    byte[] h = cryptographic_hash(m);
-                    // TODO: file output
-                    System.out.println("Hash Algorithm");
-                    break;
-                case "auth":
-                    m = fileToByteArray(args[1]);
-                    pw = args[2].getBytes();
-                    // TODO: place function
-                    // TODO: file output
-                    System.out.println("Auth Algorithm");
-                    break;
-                case "encrypt":
-                    m = fileToByteArray(args[1]);
-                    pw = args[2].getBytes();
-                    zct = encrypt(m, pw);
-                    // TODO: file output
-                    System.out.println("encrypt Algorithm");
-                    break;
-                case "decrypt":
-                    zct = fileToByteArray(args[1]);
-                    pw = args[2].getBytes();
-                    m = decrypt(zct, pw);
-                    // TODO: file output
-                    System.out.println("decrypt Algorithm");
-                    break;
-                default:
-                    System.out.println("Invalid Argument");
-                    break;
-            }
-        } else {
-            System.out.println("No acceptable arguments.");
-            System.out.println("Please use the argument hash, auth, encrypt, or decrypt to use this program");
+        byteArrayToFile(sample_4, "C:/Users/Andrew/Desktop/TCSS487/output");
+        byte[] key = fileToByteArray("sample_6_key");
+        byte[] data = fileToByteArray("sample_6_data.bin");
+        if (data.length < key.length) {
+            System.out.println("hello there!");
         }
-        */
+//
+//        if (args.length > 0) {
+//            /*
+//            argument expectations/outputs:
+//            Hash: <program_name> hash <filepath_m>
+//                input: byte array m from file (probably .bin)
+//                output: cryptographic hash h
+//            Auth: <program_name> auth <filepath_m> <passphrase_pw>
+//                input: byte array m, passphrase pw
+//                output: authentication tag t
+//            Encrypt: <program_name> encrypt <filepath_m> <passphrase_pw>
+//                input: byte array m, passphrase pw
+//                output: symmetric cryptogram (z,c,t)
+//            Decrypt: <program_name> decrypt <filepath_(zct)> <passphrase_pw>
+//                input: symmetric cryptogram (z,c,t), passphrase pw
+//                output: decrypted byte array t_prime
+//             */
+//             byte[] m = new byte[0];
+//            switch (args[0]) {
+//                case "hash":
+//                    m = fileToByteArray(args[1]);
+//                    byte[] h = cryptographic_hash(m);
+//                    // TODO: file output
+//                    System.out.println("Hash Algorithm");
+//                    break;
+//                case "auth":
+//                    m = fileToByteArray(args[1]);
+//                    pw = args[2].getBytes();
+//                    // TODO: place function
+//                    // TODO: file output
+//                    System.out.println("Auth Algorithm");
+//                    break;
+//                case "encrypt":
+//                    m = fileToByteArray(args[1]);
+//                    pw = args[2].getBytes();
+//                    zct = encrypt(m, pw);
+//                    // TODO: file output
+//                    System.out.println("encrypt Algorithm");
+//                    break;
+//                case "decrypt":
+//                    zct = fileToByteArray(args[1]);
+//                    pw = args[2].getBytes();
+//                    m = decrypt(zct, pw);
+//                    // TODO: file output
+//                    System.out.println("decrypt Algorithm");
+//                    break;
+//                default:
+//                    System.out.println("Invalid Argument");
+//                    break;
+//            }
+//        } else {
+//            System.out.println("No acceptable arguments.");
+//            System.out.println("Please use the argument hash, auth, encrypt, or decrypt to use this program");
+//        }
+//
     }
 
     private static String print_bytes(byte[] byteString){
@@ -235,6 +242,15 @@ public class Main {
             System.out.println(hexString);
             return hexString;
     }
+    public static void byteArrayToFile(byte[] output, String path){
+        try {
+            OutputStream stream = new FileOutputStream("sample_4_data.bin");
+            stream.write(output);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static byte[] fileToByteArray(String path){
         byte[] fileBytes = new byte[0];
         try {
@@ -245,7 +261,7 @@ public class Main {
         return fileBytes;
     }
 
-    public byte[] authentication_tag(byte[] m, byte[] pw) {
+    public static byte[] authentication_tag(byte[] m, byte[] pw) {
         return KMACXOF256(pw, m, 512, "T".getBytes());
     }
 

@@ -87,6 +87,7 @@ public class Sponge {
 
 	public static byte[] keccak_f(byte[] string) {
 		// TO BE ADDED
+		return new byte[0];
 	}
 	
 	
