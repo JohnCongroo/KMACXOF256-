@@ -43,10 +43,12 @@ public class Main {
         int asd = finalString.length;
         Sha3.sha3_update(c, finalString, finalString.length);
         Sha3.shake_xof(c);
+
+        //if we need more output this is when we'd shake_out and not do this copyofrange
+        //Sha3.shake_out(c, val, 999);
         byte[] val = Arrays.copyOfRange(c.b, 0, L / 8);
 
-        //if we need more output this is when we'd shake_out
-        //Sha3.shake_out(c, val, 999);
+
         return val;
         
         /* 

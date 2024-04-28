@@ -36,19 +36,7 @@ public class Sha3 {
 
         long v;
 
-        for (i = 0; i < 25; i++) {
-            v = st[i];
-            st[i] = ((long) v & 0xFFL)  << 56  | 
-                    (((long) v & 0xFF00L) << 40)   |
-                    (((long) v & 0xFF0000L)<< 24)  |
-                    (((long) v & 0xFF000000L) << 8)  |
-                    (((long) v & 0xFF00000000L) >>> 8 )  |
-                    (((long) v & 0xFF0000000000L) >>> 24 )  |
-                    (((long) v & 0xFF000000000000L) >>> 40 )  |
-                    (((long) v & 0xFF00000000000000L) >>> 56);
-            }
- 
-        if (areWeShaking == true){
+        if (areWeShaking == false){
             for (i = 0; i < 25; i++) {
                 v = st[i];
                 st[i] = ((long) v & 0xFFL)  << 56  | 
@@ -60,8 +48,9 @@ public class Sha3 {
                         (((long) v & 0xFF000000000000L) >>> 40 )  |
                         (((long) v & 0xFF00000000000000L) >>> 56);
                 }
+           
         }
-       
+
         // actual iteration
         //24 = keccakrounds
         for (r = 0; r < 24; r++) {
@@ -207,7 +196,7 @@ public class Sha3 {
 
     public static void shake_xof(sha3_ctx_t c)
     {
-        //c.b[c.pt] ^= (byte) 0x04;
+        //c.b[c.pt] ^= (byte) 0x1F;
         c.b[c.pt] ^= (byte) 0x04;
         c.update_q();
         c.b[c.rsiz - 1] ^= (byte) 0x80;
