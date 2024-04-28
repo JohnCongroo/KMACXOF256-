@@ -52,12 +52,7 @@ public class Sha3Checkaroo{
             }  ,
             
             {   // SHA3-256, short message
-                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-                "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" +
-                "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" +
-                "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" +
-                "AAAAAABBCC",
-                //136 rn
+                "9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10",
                 "2F1A5F7159E34EA19CDDC70EBF9B81F1A66DB40615D7EAD3CC1F1B954D82A3AF"
             },
              
@@ -89,13 +84,13 @@ public class Sha3Checkaroo{
         byte[] msg = new byte[256];
 
         fails = 0;
-        for (i = 1; i < 2; i++) {
+        for (i = 0; i < 4; i++) {
 
             msg_len = test_readhex(msg, testvec[i][0], msg.length);
             //System.out.println(msg_len);
             sha_len = test_readhex(sha, testvec[i][1], sha.length);
             //System.out.println(sha_len);
-            Sha3.sha3(msg, msg_len, buf, 32);
+            Sha3.sha3(msg, msg_len, buf, sha_len);
  
             System.out.print("\nSHA: ");
             for (int j = 0; j < sha_len; j++){
@@ -120,8 +115,8 @@ public class Sha3Checkaroo{
     }
 
     public static void main(String args[]){
-        if (test_sha3() == 0/*  && test_shake() == 0*/){
-            System.out.println("No sha3 or shake errors");
+        if (test_sha3() == 0   && test_shake() == 0){
+            System.out.println("\nAll good");
             //test_speed();
         }
     }
@@ -147,8 +142,8 @@ public class Sha3Checkaroo{
         fails = 0;
 
         for (i = 0; i < 4; i++) {
-            byte[] buf = new byte[32];
-            byte[] ref = new byte[32];
+            byte[] buf = new byte[64];
+            byte[] ref = new byte[64];
     
             if ((i & 1) == 0) {             // test each twice
                 Sha3.sha3_init(sha3, 16);
@@ -172,15 +167,13 @@ public class Sha3Checkaroo{
                 Sha3.areWeShaking = false;
             }   // output. discard bytes 0..479
 
-           
-            /* 
+        
             System.out.println("");
             System.out.print("BUF: ");
-            for (int y = 0; y < buf.length; y++){
+            for (int y = 0; y < 32; y++){
                 System.out.printf("%02X ", buf[y]);
             }
 
-*/
             // compare to reference
             test_readhex(ref, testhex[i], ref.length);
             if (!Arrays.equals(buf, ref)) {
@@ -188,15 +181,12 @@ public class Sha3Checkaroo{
                 fails++;
             }
 
-            for (int y = 0; y < ref.length; y++){
-                System.out.printf("%02X ", buf[y]);
+            System.out.println("");
+            System.out.print("REF: ");
+            for (int y = 0; y < 32; y++){
+                System.out.printf("%02X ", ref[y]);
             }
-            System.out.println();
 
-            for (int x = 0; x < ref.length; x++){
-                System.out.printf("%02X ", ref[x]);
-            }
-            System.out.println("\n------------");
 
             for (int z = 0; z < ref.length; z++){
                 if (ref[z] != buf[z]){
@@ -205,6 +195,7 @@ public class Sha3Checkaroo{
                 }
             }
         }
+        System.out.println("\nNumber of shake fails: " + fails);
         return fails;
     }
 } 

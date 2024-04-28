@@ -3,7 +3,7 @@
 public class Sha3 {
 
     static boolean areWeShaking = false;
-    private byte[] right_encode = {0, 1};
+    //private byte[] right_encode = {0, 1};
 
     public static long[] keccak_f(long[] st){
 
@@ -47,7 +47,7 @@ public class Sha3 {
                     (((long) v & 0xFF000000000000L) >>> 40 )  |
                     (((long) v & 0xFF00000000000000L) >>> 56);
             }
-        
+ 
         if (areWeShaking == true){
             for (i = 0; i < 25; i++) {
                 v = st[i];
@@ -60,9 +60,8 @@ public class Sha3 {
                         (((long) v & 0xFF000000000000L) >>> 40 )  |
                         (((long) v & 0xFF00000000000000L) >>> 56);
                 }
-
         }
-
+       
         // actual iteration
         //24 = keccakrounds
         for (r = 0; r < 24; r++) {
@@ -208,7 +207,8 @@ public class Sha3 {
 
     public static void shake_xof(sha3_ctx_t c)
     {
-        c.b[c.pt] ^= (byte) 0x04;
+        //c.b[c.pt] ^= (byte) 0x04;
+        c.b[c.pt] ^= (byte) 0x1F;
         c.update_q();
         c.b[c.rsiz - 1] ^= (byte) 0x80;
         c.update_q();
