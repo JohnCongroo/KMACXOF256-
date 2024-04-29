@@ -37,17 +37,12 @@ public class Main {
         System.arraycopy(newX, 0, finalString, bytepadNS.length, newX.length);
 
         // KECCAK
-        Sha3 sha3 = new Sha3();
         sha3_ctx_t c = new sha3_ctx_t();
         Sha3.sha3_init(c, 32);
-        int asd = finalString.length;
         Sha3.sha3_update(c, finalString, finalString.length);
         Sha3.shake_xof(c);
-
-        //if we need more output this is when we'd shake_out and not do this copyofrange
-        //Sha3.shake_out(c, val, 999);
-        byte[] val = Arrays.copyOfRange(c.b, 0, L / 8);
-
+        byte[] val = new byte[L>>>3];
+        Sha3.shake_out(c, val, L>>>3);
 
         return val;
         
@@ -167,7 +162,7 @@ public class Main {
         byte[] zct = new byte[0];
         byte[] pw = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
                 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F};
-        byte[] finalOutput = KMACXOF256(pw, sample_6, 512, "My Tagged Application".getBytes());
+        byte[] finalOutput = KMACXOF256(pw, sample_4, 512, "My Tagged Application".getBytes());
 
         byte[] a = finalOutput;
         /* 
