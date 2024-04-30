@@ -77,6 +77,7 @@ public class SpongeBoolean {
 	
 	public static boolean[] keccak_f(boolean[] string) {
 		// TO BE ADDED
+		return new boolean[0];
 	}
 	
 	public static boolean[] pad(int x, int m) {
