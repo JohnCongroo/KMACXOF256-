@@ -62,20 +62,4 @@ public class Internal {
             throw new IllegalArgumentException("error");
         }
     }
-
-    //helper to print bits for each byte in byte string
-    private static void print_bytes(byte[] byteString){
-        for (byte b : byteString) {
-            //reference: https://stackoverflow.com/questions/9280654/c-printing-bits
-
-            //print bits
-            for (int i = 7; i >= 0; i--){
-                int bit = (b >> i) & 1;
-                System.out.print(bit);
-            }
-
-            System.out.print(" ");
-            System.out.print("= " + b + ", ");
-        }
-    }
 }
