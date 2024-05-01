@@ -167,6 +167,16 @@ public class Main {
 
         byte[] m = new byte[0];
         String fileName = "";
+        /*
+        randomByteFileGenerator(8, "randomKey1");
+        randomByteFileGenerator(23, "randomKey2");
+        randomByteFileGenerator(16, "randomKey3");
+        randomByteFileGenerator(2, "randomKey4");
+        randomByteFileGenerator(32, "randomMessage1");
+        randomByteFileGenerator(64, "randomMessage2");
+        randomByteFileGenerator(136, "randomMessage3");
+        randomByteFileGenerator(212, "randomMessage4");
+        */
         if (args.length > 0) {
             /*
             argument expectations/outputs:
@@ -183,7 +193,6 @@ public class Main {
                 input: symmetric cryptogram (z,c,t), passphrase pw
                 output: decrypted byte array t_prime
              */
-
             switch (args[0]) {
                 case "hash":
                     m = fileToByteArray(args[1]);
@@ -264,8 +273,10 @@ public class Main {
     // encrypt
     public static byte[] encrypt(byte [] m, byte[] password){
         //encrypt
-        byte[] z = new SecureRandom().generateSeed(256);
+        byte[] z = new SecureRandom().generateSeed(64);
         byte[] zAndPw = new byte[z.length + password.length];
+        System.arraycopy(z, 0, zAndPw, 0, z.length);
+        System.arraycopy(password, 0, zAndPw, z.length, password.length);
         // (ke || ka) is equal to the function call of kmacxof256 with the following paramaters
         // z (secure random number)
         // pw passphrase (password)
@@ -286,7 +297,7 @@ public class Main {
         // |m| is the length of the message m
         // ^ is the xor operator
 
-        byte[] c = KMACXOF256(ke, "".getBytes(), m.length, "SKE".getBytes());
+        byte[] c = KMACXOF256(ke, "".getBytes(), m.length * 8, "SKE".getBytes());
 
         for (int i = 0; i < c.length; i++) {
             c[i] ^= m[i];
@@ -311,12 +322,14 @@ public class Main {
         byte[] m = new byte[0];
         byte[] tPrime = new byte[0];
         byte[] zAndPw = new byte[z.length + password.length];
+        System.arraycopy(z, 0, zAndPw, 0, z.length);
+        System.arraycopy(password, 0, zAndPw, z.length, password.length);
         byte[] keAndKa = KMACXOF256(zAndPw, "".getBytes(), 1024, "S".getBytes());
         byte[] ke = new byte[keAndKa.length / 2];
         byte[] ka = new byte[keAndKa.length / 2];
         System.arraycopy(keAndKa, 0, ke, 0, ke.length);
         System.arraycopy(keAndKa, ke.length, ka, 0, ka.length);
-        m = KMACXOF256(ke, "".getBytes(), c.length, "SKE".getBytes());
+        m = KMACXOF256(ke, "".getBytes(), c.length * 8, "SKE".getBytes());
         for (int i = 0; i < m.length; i++) {
             m[i] ^= c[i];
         }
@@ -327,5 +340,9 @@ public class Main {
             System.out.println("Decryption failed.");
             return new byte[0];
         }
+    }
+    public static void randomByteFileGenerator(int numBytes, String filename){
+        byte[] a = new SecureRandom().generateSeed(numBytes);
+        byteArrayToFile(a, filename);
     }
 }
