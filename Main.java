@@ -16,6 +16,7 @@ import java.security.SecureRandom;
  *
  * All References:
  * NIST Special Publication 800-185 <https://dx.doi.org/10.6028/NIST.SP.800-185>
+ * FIPS PUB 202 <https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.202.pdf>
  * Markku-Juhani Saarinen’s C implementation: <https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c>
  * Conversion of long and byte arrays: <https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java>
  * UWT TCSS487 Cryptography KMACXOF256 slides by Paulo Barreto
