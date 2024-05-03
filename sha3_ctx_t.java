@@ -1,8 +1,12 @@
 
 /**
- * The object that contains the internal state of the sponge
- * @author Max Yim, Jasmine Sellers, Andrew Holmes
- * reference: https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java
+ * Contains the internal state of the sponge
+ *
+ * References:
+ * Conversion of long and byte arrays: <https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java>
+ *
+ * @author Andrew Holmes, Jasmine Sellers, Max Yim
+ * @version 3 May 2024
  */
 
 public class sha3_ctx_t{
