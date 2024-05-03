@@ -1,4 +1,11 @@
-
+/**
+ * Contains supporting functions: bytepad, encode_string, left_encode
+ *
+ * Sources:
+ * NIST Special Publication 800-185 <https://dx.doi.org/10.6028/NIST.SP.800-185>
+ * @author Max Yim, Jasmine Sellers, Andrew Holmes
+ * @version 3 May 2024
+ */
 public class Internal {
     public static byte[] bytepad(byte[] X, int w){
         if (w > 0) {
