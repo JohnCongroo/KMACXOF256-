@@ -29,7 +29,7 @@ public class Main {
      * @param X the main input/message string of any length including zero
      * @param L the requested output length in bits
      * @param S (optional) the customizable string
-     * @return
+     * @return val the output val
      */
     public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
         if ((L & 7) != 0) {
@@ -55,11 +55,18 @@ public class Main {
         System.arraycopy(bytepadNS, 0, finalString, 0, bytepadNS.length);
         System.arraycopy(newX, 0, finalString, bytepadNS.length, newX.length);
 
-        // KECCAK
+        //SPONGE
+        //intialize internal state
         sha3_ctx_t c = new sha3_ctx_t();
+        //32 bytes at a time for kmacxof256 specifications
         Sha3.sha3_init(c, 32);
+
+        //absorb stage of sponge
         Sha3.sha3_update(c, finalString, finalString.length);
+        //padding for extending
         Sha3.shake_xof(c);
+
+        //squeeze
         byte[] val = new byte[L>>>3];
         Sha3.shake_out(c, val, L>>>3);
         return val;
