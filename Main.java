@@ -1,4 +1,3 @@
-//java uses utf-8 encoding when reading in from the scanner
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,8 +13,10 @@ import java.security.SecureRandom;
  * - authentication tag (text input or file)
  * - encryption
  * - decryption
- * Sources:
+ * All Sources:
  * NIST Special Publication 800-185 <https://dx.doi.org/10.6028/NIST.SP.800-185>
+ * Markku-Juhani Saarinen’s C implementation: <https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c>
+ * Conversion of long and byte arrays: <https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java>
  * @author Max Yim, Jasmine Sellers, Andrew Holmes
  * @version 3 May 2024
  */
@@ -88,32 +89,8 @@ public class Main {
         byte[] h = new byte[0];
         String keyboard = "";
         String fileName = "";
-        /*
-        randomByteFileGenerator(8, "randomKey1");
-        randomByteFileGenerator(23, "randomKey2");
-        randomByteFileGenerator(16, "randomKey3");
-        randomByteFileGenerator(2, "randomKey4");
-        randomByteFileGenerator(32, "randomMessage1");
-        randomByteFileGenerator(64, "randomMessage2");
-        randomByteFileGenerator(136, "randomMessage3");
-        randomByteFileGenerator(212, "randomMessage4");
-        */
+
         if (args.length > 0) {
-            /*
-            argument expectations/outputs:
-            Hash: <program_name> hash <filepath_in> <filepath_out>
-                input: byte array m from file (probably .bin)
-                output: cryptographic hash h
-            Auth: <program_name> auth <filepath_in> <filepath_out> <passphrase_in>
-                input: byte array m, passphrase pw
-                output: authentication tag t
-            Encrypt: <program_name> encrypt <filepath_in> <filepath_out> <passphrase_in>
-                input: byte array m, passphrase pw
-                output: symmetric cryptogram (z,c,t)
-            Decrypt: <program_name> decrypt <filepath_in> <filepath_out> <passphrase_in>
-                input: symmetric cryptogram (z,c,t), passphrase pw
-                output: decrypted byte array t_prime
-             */
             switch (args[0]) {
                 case "hash":
                     m = fileToByteArray(args[1]);
@@ -146,7 +123,6 @@ public class Main {
                     System.out.println("File decrypted with name " + fileName);
                     break;
                 case "hash_keyboard":
-                    // hash_keyboard <output_filename> <typed input>
                     fileName = args[1];
                     keyboard = args[2];
                     for (int i = 3; i < args.length ; i++) {
