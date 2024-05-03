@@ -1,10 +1,18 @@
-//reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
-
+/**
+* Sha3 family of functions including extendable output using cshake padding
+* @author Max yim, Jasmine Sellers, Andrew Holmes
+*/
 public class Sha3 {
 
+    //check to see if we are shaking for endian conversion
     static boolean areWeShaking = false;
-    //private byte[] right_encode = {0, 1};
 
+    /**
+     * The permutation function to be applied to the state
+     *
+     * @param st long[] the internal state
+     * @return st long[] the internal state after permutation
+     */
     public static long[] keccak_f(long[] st){
 
         //round constant
@@ -51,7 +59,6 @@ public class Sha3 {
                 }
         }
 
-        // actual iteration
         //24 = keccakrounds
         for (r = 0; r < 24; r++) {
 
@@ -90,7 +97,12 @@ public class Sha3 {
         return st;
     }
 
-    // Initialize the context for SHA3
+    /**
+     * Initialize the sponge
+     * @param c object the object that contains the internal state
+     * @param mdlen int the message digest length
+     * @return
+     */
     public static int sha3_init(sha3_ctx_t c, int mdlen){
         int i;
         for (i = 0; i < 25; i++) {
@@ -100,8 +112,8 @@ public class Sha3 {
             c.b[i] = 0;
         }
 
-        //initializating state array params
         c.mdlen = mdlen;
+        //r should be 136
         c.rsiz = 200 - 2 * mdlen;
         c.pt = 0;
 
@@ -109,17 +121,26 @@ public class Sha3 {
         
     }
 
-    // update state with more data
+    /**
+     * absorb stage of the sponge
+     * @param c object contains the internal state of the sponge
+     * @param data byte[] the actual data to be absorbed into the state
+     * @param len int the length of the data
+     * @return 1 after the function call
+     */
     public static int sha3_update(sha3_ctx_t c, byte[] data, int len)
     {
         int i;
         int j;
 
         j = c.pt;
+        //until message is exhausted
         for (i = 0; i < len; i++) {
+            //xor into state up to chunk size of r
             c.b[j++] ^= (byte) data[i];
             c.update_q();
             if (j >= c.rsiz) {
+                //permute after absorbing a chunk
                 keccak_f(c.q);
                 c.update_b();
                 j = 0;
@@ -131,36 +152,36 @@ public class Sha3 {
     }
 
     // finalize and output a hash
+
+    /**
+     * Squeeze portion for sha3 implementation, unused in kmacxof256
+     * @param md byte[] the actual data to be absorbed into the state
+     * @param c object contains the internal state of the sponge
+     * @return 1 after the function call
+     */
     public static int sha3_final(byte[] md, sha3_ctx_t c)
     {
         int i;
 
+        //sha3 padding
         c.b[c.pt] ^= (byte) 0x06;
-        c.b[c.rsiz - 1] ^= (byte) 0x80;
         c.update_q();
-        keccak_f(c.q);
-        c.update_b();
+             c.b[c.rsiz - 1] ^= (byte) 0x80;
+             c.update_q();
+             keccak_f(c.q);
+             c.update_b();
 
-        for (i = 0; i < c.mdlen; i++) {
-            md[i] = c.b[i];
-        }
-        return 1;
-    }
+             for (i = 0; i < c.mdlen; i++) {
+                 md[i] = c.b[i];
+             }
+             return 1;
+         }
 
-    // compute a SHA-3 hash (md) of given byte length from "in"
-    public static byte[] sha3(byte[] in, int inlen, byte[] md, int mdlen)
-    {
-        sha3_ctx_t sha3 = new sha3_ctx_t();
-
-        sha3_init(sha3, mdlen);
-        sha3_update(sha3, in, inlen);
-        sha3_final(md, sha3);
-
-        return md;
-    }
-
-    // SHAKE128 and SHAKE256 extensible-output functionality
-
+    /**
+     * Padding specification for cshake, used for kmacxof256
+     * regular shake padding is commented out
+     * @param c the object the internal state
+     */
     public static void shake_xof(sha3_ctx_t c)
     {
         //c.b[c.pt] ^= (byte) 0x1F;
@@ -173,14 +194,19 @@ public class Sha3 {
         c.pt = 0;
     }
 
-    static int debug = 0;
+    /**
+     * squeeze portion of sponge
+     * @param c object contains the internal state
+     * @param out byte[] the output byte array
+     * @param len int the length of the output array
+     */
     public static void shake_out(sha3_ctx_t c, byte[] out, int len)
     {
         areWeShaking = true;
         int i;
         int j;
-        //debug++;
         j = c.pt ;
+        //until requested message length
         for (i = 0; i < len; i++) {
             if (j >= c.rsiz) {
                 keccak_f(c.q);
