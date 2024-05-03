@@ -40,23 +40,21 @@ public class Sha3 {
         if (areWeShaking == false){
             for (i = 0; i < 25; i++) {
                 v = st[i];
-
-                long v1 = ((long) v & 0xFFL) << 56;
-                long v2 = ((long) v & 0xFF00) << 40;
-                long v3 = ((long) v & 0xFF0000L) << 24;
-                long v4 = ((long) v & 0xFF000000L) << 8;
-                long v5 = ((long) v & 0xFF00000000L) >>> 8;
-                long v6 = ((long) v & 0xFF0000000000L) >>> 24;
-                long v7 = ((long) v & 0xFF000000000000L) >>> 40;
-                long v8 = ((long) v & 0xFF00000000000000L) >>> 56;
-
-                st[i] = v1 | v2 | v3 | v4 | v5 | v6 | v7 | v8;
+                st[i] = ((long) v & 0xFFL)  << 56  | 
+                        (((long) v & 0xFF00L) << 40)   |
+                        (((long) v & 0xFF0000L)<< 24)  |
+                        (((long) v & 0xFF000000L) << 8)  |
+                        (((long) v & 0xFF00000000L) >>> 8 )  |
+                        (((long) v & 0xFF0000000000L) >>> 24 )   |
+                        (((long) v & 0xFF000000000000L) >>> 40 )  |
+                        (((long) v & 0xFF00000000000000L) >>> 56);
                 }
         }
 
         // actual iteration
         //24 = keccakrounds
         for (r = 0; r < 24; r++) {
+
             // Theta
             for (i = 0; i < 5; i++)
                 bc[i] = (st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20]);
@@ -67,6 +65,7 @@ public class Sha3 {
                 for (j = 0; j < 25; j += 5)
                     st[j + i] ^= t;
             }
+
         // Rho Pi
         t = st[1];
         for (i = 0; i < 24; i++) {
@@ -87,6 +86,7 @@ public class Sha3 {
         //  Iota
         st[0] ^= keccakf_rndc[r];     
         }
+
         return st;
     }
 
@@ -165,6 +165,7 @@ public class Sha3 {
     {
         //c.b[c.pt] ^= (byte) 0x1F;
         c.b[c.pt] ^= (byte) 0x04;
+        c.update_q();
         c.b[c.rsiz - 1] ^= (byte) 0x80;
         c.update_q();
         keccak_f(c.q);

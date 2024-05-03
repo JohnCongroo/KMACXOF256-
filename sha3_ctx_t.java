@@ -24,7 +24,7 @@ public class sha3_ctx_t{
             q[i] = temp;
         }
     }
-    
+
     public void update_b(){
         for(int i = 0; i < q.length; i++){
             long v = q[i];
@@ -38,4 +38,6 @@ public class sha3_ctx_t{
             b[7 + i * 8] = (byte) (v >> 56 & 0xFF);
         }
     }
+}
+
 }
