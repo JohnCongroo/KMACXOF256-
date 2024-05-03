@@ -147,10 +147,8 @@ public class Sha3 {
             }
         }
         c.pt = j;
-
         return 1;
     }
-
     // finalize and output a hash
 
     /**
