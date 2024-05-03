@@ -3,7 +3,6 @@
 * @author Max yim, Jasmine Sellers, Andrew Holmes
 */
 public class Sha3 {
-
     //check to see if we are shaking for endian conversion
     static boolean areWeShaking = false;
 
@@ -193,7 +192,7 @@ public class Sha3 {
     }
 
     /**
-     * squeeze portion of sponge
+     * Squeezes portion of sponge
      * @param c object contains the internal state
      * @param out byte[] the output byte array
      * @param len int the length of the output array
