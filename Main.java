@@ -179,75 +179,48 @@ public class Main {
         }
     }
 
-    private static String print_bytes(byte[] byteString){
-            StringBuilder hexBuilder = new StringBuilder();
-            for (byte b : byteString) {
-                hexBuilder.append(String.format("%02X", b));
-                hexBuilder.append(' ');
-            }
-            String hexString = hexBuilder.toString();
-            System.out.println(hexString);
-            return hexString;
-    }
-    public static byte[] fileToByteArray(String name){
-        byte[] fileBytes = new byte[0];
-        try {
-            fileBytes = Files.readAllBytes(Paths.get(name));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return fileBytes;
-    }
-    public static void byteArrayToFile(byte[] output, String name){
-        try {
-            OutputStream stream = new FileOutputStream(name);
-            stream.write(output);
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static byte[] cryptographic_hash(byte[] m) {
         return KMACXOF256("".getBytes(),  m, 512, "D".getBytes());
     }
+    /**
+     * Compute an authentication tag (MAC) of a given file under a give passphrase.
+     * @param m the contents in the given file.
+     * @param pw the given passphrase.
+     * @return an authentication tag (MAC) of a given file under a given passphrase.
+     */
     public static byte[] authentication_tag(byte[] m, byte[] pw) {
         return KMACXOF256(pw, m, 512, "T".getBytes());
     }
 
-    // encrypt
+    /**
+     * Encrypts a byte array m symmetrically under passphrase pw:
+     * @param m message to be encrypted in a byte string
+     * @param password byte string of password to use as key
+     * @return symmetric crytpogram (z,c,t)
+     */
     public static byte[] encrypt(byte [] m, byte[] password){
-        //encrypt
+        // z is randomized bits
         byte[] z = new SecureRandom().generateSeed(64);
         byte[] zAndPw = new byte[z.length + password.length];
         System.arraycopy(z, 0, zAndPw, 0, z.length);
         System.arraycopy(password, 0, zAndPw, z.length, password.length);
-        // (ke || ka) is equal to the function call of kmacxof256 with the following paramaters
-        // z (secure random number)
-        // pw passphrase (password)
-        // these two are combined above into zAndPw
-        // 1024 = N, a function-name bit string, used by NIST to define functions based on cSHAKE
-        // "S" = is a customization bit string. The user selects this string to define a variant of the function.
-        //      when no customization is desired, S is set to the empty string
-        byte[] S = new byte[0];
+
         byte[] keAndKa = KMACXOF256(zAndPw, "".getBytes(), 1024, "S".getBytes());
         //splitting keAndKa in half into two arrays
-        // not checking for rounding, as kmax should return a 256 bit string
         byte[] ke = new byte[keAndKa.length / 2];
         byte[] ka = new byte[keAndKa.length / 2];
         System.arraycopy(keAndKa, 0, ke, 0, ke.length);
         System.arraycopy(keAndKa, ke.length, ka, 0, ka.length);
 
-        // c is the encrypted message
-        // |m| is the length of the message m
-        // ^ is the xor operator
-
+        // c is the encrypted message, uses ke
         byte[] c = KMACXOF256(ke, "".getBytes(), m.length * 8, "SKE".getBytes());
-
+        // XOR m onto c
         for (int i = 0; i < c.length; i++) {
             c[i] ^= m[i];
         }
+        // building auth tag t
         byte[] t = KMACXOF256(ka, m, 512, "SKA".getBytes());
+        // zct is combined symmetric cryptogram
         byte[] zct;
         zct = new byte[z.length + c.length + t.length];
         System.arraycopy(z, 0, zct, 0, z.length );
@@ -255,6 +228,13 @@ public class Main {
         System.arraycopy(t, 0, zct, z.length + c.length, t.length );
         return zct;
     }
+
+    /**
+     * Decrypting a symmetric cryptogram (z,c,t) under passphrase pw:
+     * @param zct symmetric cryptogram as byte string
+     * @param password key as byte string
+     * @return decoded message as byte string
+     */
     public static byte[] decrypt(byte [] zct, byte[] password){
         // get z, c, t, from array start and end positions of byte zct input
         byte[] z = new byte[64];
@@ -286,6 +266,42 @@ public class Main {
             return new byte[0];
         }
     }
+
+    /**
+     * Helper method that converts the contents of the file to a byte array.
+     * @param name the file name
+     * @return the byte array containing the contents from the file
+     */
+    public static byte[] fileToByteArray(String name){
+        byte[] fileBytes = new byte[0];
+        try {
+            fileBytes = Files.readAllBytes(Paths.get(name));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return fileBytes;
+    }
+
+    /**
+     * Helper method that writes the contents from the byte array to the file.
+     * @param output the byte array containing content to be copied over
+     * @param name the output file name
+     */
+    public static void byteArrayToFile(byte[] output, String name){
+        try {
+            OutputStream stream = new FileOutputStream(name);
+            stream.write(output);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Testing method to generate random byte files to use for testing.
+     * @param numBytes the number of bytes to output
+     * @param filename the file name
+     */
     public static void randomByteFileGenerator(int numBytes, String filename){
         byte[] a = new SecureRandom().generateSeed(numBytes);
         byteArrayToFile(a, filename);
