@@ -1,3 +1,9 @@
+//https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java
+/**
+ * The object that contains the internal state of the sponge
+ * @author Max Yim, Jasmine Sellers, Andrew Holmes
+ */
+
 public class sha3_ctx_t{
     public byte[] b;
     public long[] q;
@@ -6,13 +12,12 @@ public class sha3_ctx_t{
     public sha3_ctx_t(){
         b = new byte[200];
         q = new long[25];
-        pt = 0;
-        rsiz = 0;
-        mdlen = 0;
+        pt = 0; //pointer for position of state array
+        rsiz = 0; //pointer for end of position
+        mdlen = 0; //size of message digest length
     }
 
-    //refernce
-    //https://stackoverflow.com/questions/1586882/how-do-i-convert-a-byte-array-to-a-long-in-java
+    //update q
     public void update_q(){
         long temp = 0;
         for (int i = 0; i < q.length; i++) {
@@ -26,18 +31,14 @@ public class sha3_ctx_t{
     }
 
     public void update_b(){
-        for(int i = 0; i < q.length; i++){
-            long v = q[i];
-            b[i * 8]     = (byte) (v & 0xFF);
-            b[1 + i * 8] = (byte) (v >> 8 & 0xFF);
-            b[2 + i * 8] = (byte) (v >> 16 & 0xFF);
-            b[3 + i * 8] = (byte) (v >> 24 & 0xFF);
-            b[4 + i * 8] = (byte) (v >> 32 & 0xFF);
-            b[5 + i * 8] = (byte) (v >> 40 & 0xFF);
-            b[6 + i * 8] = (byte) (v >> 48 & 0xFF);
-            b[7 + i * 8] = (byte) (v >> 56 & 0xFF);
+        long temp;
+        for (int i = 0; i < q.length; i++) {
+            temp = q[i];
+            for (int j = 0; j < 8; j++){
+                b[j+i*8] = (byte) (temp & 0xFF); 
+                temp = temp >>> 8;
+            }
         }
     }
-}
 
 }
