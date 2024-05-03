@@ -35,6 +35,11 @@ public class Internal {
         }
     }
 
+    /**
+     *
+     * @param S byte[]
+     * @return byte[]
+     */
     public static byte[] encode_string(byte[] S) {
         if (0 <= S.length && S.length < Math.pow(2, 2040)) {
             // 1. Return left_encode(len(S)) || S.
@@ -48,6 +53,12 @@ public class Internal {
         }
     }
 
+    /**
+     *
+     * @param x int
+     * @return byte[]
+     * @throws IllegalArgumentException if X is < 0 or x > 2^2040
+     */
     public static byte[] left_encode(int x){
         //validate input
         if (x>= 0 && x < Math.pow(2,2040)) {
