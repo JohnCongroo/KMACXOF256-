@@ -36,25 +36,27 @@ public class Sha3 {
 
         long v;
 
+        //endian conversion
         if (areWeShaking == false){
             for (i = 0; i < 25; i++) {
                 v = st[i];
-                st[i] = ((long) v & 0xFFL)  << 56  | 
-                        (((long) v & 0xFF00L) << 40)   |
-                        (((long) v & 0xFF0000L)<< 24)  |
-                        (((long) v & 0xFF000000L) << 8)  |
-                        (((long) v & 0xFF00000000L) >>> 8 )  |
-                        (((long) v & 0xFF0000000000L) >>> 24 )  |
-                        (((long) v & 0xFF000000000000L) >>> 40 )  |
-                        (((long) v & 0xFF00000000000000L) >>> 56);
+
+                long v1 = ((long) v & 0xFFL) << 56;
+                long v2 = ((long) v & 0xFF00) << 40;
+                long v3 = ((long) v & 0xFF0000L) << 24;
+                long v4 = ((long) v & 0xFF000000L) << 8;
+                long v5 = ((long) v & 0xFF00000000L) >>> 8;
+                long v6 = ((long) v & 0xFF0000000000L) >>> 24;
+                long v7 = ((long) v & 0xFF000000000000L) >>> 40;
+                long v8 = ((long) v & 0xFF00000000000000L) >>> 56;
+
+                st[i] = v1 | v2 | v3 | v4 | v5 | v6 | v7 | v8;
                 }
-           
         }
 
         // actual iteration
         //24 = keccakrounds
         for (r = 0; r < 24; r++) {
-
             // Theta
             for (i = 0; i < 5; i++)
                 bc[i] = (st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20]);
@@ -65,13 +67,6 @@ public class Sha3 {
                 for (j = 0; j < 25; j += 5)
                     st[j + i] ^= t;
             }
-            //ccode
-            //0x6A7D0B6E0BD168C3
-            //0110 1010 0111 1101 0000 1011 0110 1110 0000 1011 1101 0001 0110 1000 1100 0011
-
-            //java
-            //0xc369d00b6f0a7d6a
-            //1100 0011 0110 1001 1101 0000 0000 1011 0110 1111 0000 1010 0111 1101 0110 1010
         // Rho Pi
         t = st[1];
         for (i = 0; i < 24; i++) {
@@ -92,29 +87,6 @@ public class Sha3 {
         //  Iota
         st[0] ^= keccakf_rndc[r];     
         }
-
-          /* 
-        for (i = 0; i < 25; i++) {
-            v = st[i];
-            long test = ((long) v & 0xFFL) << 56;
-            long test2 = ((long) v & 0xFF00L) << 40;
-            long test3 = ((long) v & 0xFF0000L) << 24;
-            long test4 = ((long) v & 0xFF000000L) << 8;
-            long test5 = ((long) v & 0xFF00000000L) >> 8;
-            long test6 = ((long) v & 0xFF0000000000L) >> 24;
-            long test7 = ((long) v & 0xFF000000000000L) >> 40;
-            long test8 = (long) (v >> 56) & 0xFF;
-
-            st[i] = ((long) v & 0xFFL)  << 56                | 
-                    (((long) v & 0xFF00L) << 40)             |
-                    (((long) v & 0xFF0000L)<< 24)            |
-                    (((long) v & 0xFF000000L) << 8)          |
-                    (((long) v & 0xFF00000000L) >> 8 )       |
-                    (((long) v & 0xFF0000000000L) >> 24 )    |
-                    (((long) v & 0xFF000000000000L) >> 40 )  |
-                    (((long) v & 0xFF00000000000000L) >> 56);
-            }
-*/
         return st;
     }
 
@@ -138,10 +110,8 @@ public class Sha3 {
     }
 
     // update state with more data
-
     public static int sha3_update(sha3_ctx_t c, byte[] data, int len)
     {
-
         int i;
         int j;
 
@@ -161,13 +131,11 @@ public class Sha3 {
     }
 
     // finalize and output a hash
-
     public static int sha3_final(byte[] md, sha3_ctx_t c)
     {
         int i;
 
         c.b[c.pt] ^= (byte) 0x06;
-        c.update_q();
         c.b[c.rsiz - 1] ^= (byte) 0x80;
         c.update_q();
         keccak_f(c.q);
@@ -180,7 +148,6 @@ public class Sha3 {
     }
 
     // compute a SHA-3 hash (md) of given byte length from "in"
-
     public static byte[] sha3(byte[] in, int inlen, byte[] md, int mdlen)
     {
         sha3_ctx_t sha3 = new sha3_ctx_t();
@@ -196,9 +163,8 @@ public class Sha3 {
 
     public static void shake_xof(sha3_ctx_t c)
     {
-        //c.b[c.pt] ^= (byte) 0x1F;
-        c.b[c.pt] ^= (byte) 0x04;
-        c.update_q();
+        c.b[c.pt] ^= (byte) 0x1F;
+        //c.b[c.pt] ^= (byte) 0x04;
         c.b[c.rsiz - 1] ^= (byte) 0x80;
         c.update_q();
         keccak_f(c.q);
