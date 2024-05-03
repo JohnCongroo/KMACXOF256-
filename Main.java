@@ -13,15 +13,18 @@ import java.security.SecureRandom;
  * - authentication tag (text input or file)
  * - encryption
  * - decryption
- * All Sources:
+ *
+ * All References:
  * NIST Special Publication 800-185 <https://dx.doi.org/10.6028/NIST.SP.800-185>
  * Markku-Juhani Saarinen’s C implementation: <https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c>
  * Conversion of long and byte arrays: <https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java>
  * UWT TCSS487 Cryptography KMACXOF256 slides by Paulo Barreto
+ *
  * @author Andrew Holmes, Jasmine Sellers, Max Yim
  * @version 3 May 2024
  */
 public class Main {
+    /** value of right_encode(0) */
     private static byte[] right_encode = {0, 1};
 
     /**
@@ -142,7 +145,6 @@ public class Main {
                     System.out.println("Message hashed with name " + fileName);
                     break;
                 case "auth_keyboard":
-                    // auth_keyboard <output_filename> <key_file> <typed input>
                     fileName = args[1];
                     pw = fileToByteArray(args[2]);
                     keyboard = args[3];
