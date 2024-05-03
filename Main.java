@@ -7,6 +7,11 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.security.SecureRandom;
 
+
+/**
+ *
+ * @author Max yim, Jasmine Sellers, Andrew Holmes
+ */
 public class Main {
     private static byte[] right_encode = {0, 1};
 
@@ -44,41 +49,6 @@ public class Main {
         Sha3.shake_out(c, val, L>>>3);
 
         return val;
-        
-        /* 
-        System.out.println(finalString.length);
-        int range = finalString.length / 136;
-        for (int i = 0; i < finalString.length / 136; i++){
-            int z = i * 136;
-            int p = (i + 1) * 136;
-            Sha3.sha3_update(c, Arrays.copyOfRange(finalString, z, p), 136);
-        }
-
-        //non ambiguity principle assume padding is always there
-        byte[] paddedData = new byte[136];
-
-        float asd = finalString.length/136 * 136;
-
-        System.arraycopy(finalString, finalString.length/136 * 136, paddedData, 0, finalString.length % 136);
-
-        int boinga = finalString.length % 136;
-        if (finalString.length % 136 == 135) {
-            paddedData[135] = 0x48;
-        } 
-
-        if (finalString.length % 136 == 134) {
-            paddedData[134] = (byte) 0x04;
-            paddedData[135] = (byte) 0x80;
-        }
-                
-        else {
-            int j = finalString.length % 136;
-            paddedData[finalString.length % 136] = 0x04;
-            paddedData[135] = (byte) 0x80;
-        }
-        Sha3.sha3_update(c, paddedData, 136);
-        */
-
     }
 
     // cryptographic hash function

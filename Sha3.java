@@ -1,5 +1,7 @@
-//reference (given from assignment) https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
-
+/**
+*
+* @author Max yim, Jasmine Sellers, Andrew Holmes
+*/
 public class Sha3 {
 
     static boolean areWeShaking = false;
@@ -44,11 +46,10 @@ public class Sha3 {
                         (((long) v & 0xFF0000L)<< 24)  |
                         (((long) v & 0xFF000000L) << 8)  |
                         (((long) v & 0xFF00000000L) >>> 8 )  |
-                        (((long) v & 0xFF0000000000L) >>> 24 )  |
+                        (((long) v & 0xFF0000000000L) >>> 24 )   |
                         (((long) v & 0xFF000000000000L) >>> 40 )  |
                         (((long) v & 0xFF00000000000000L) >>> 56);
                 }
-           
         }
 
         // actual iteration
@@ -65,13 +66,7 @@ public class Sha3 {
                 for (j = 0; j < 25; j += 5)
                     st[j + i] ^= t;
             }
-            //ccode
-            //0x6A7D0B6E0BD168C3
-            //0110 1010 0111 1101 0000 1011 0110 1110 0000 1011 1101 0001 0110 1000 1100 0011
 
-            //java
-            //0xc369d00b6f0a7d6a
-            //1100 0011 0110 1001 1101 0000 0000 1011 0110 1111 0000 1010 0111 1101 0110 1010
         // Rho Pi
         t = st[1];
         for (i = 0; i < 24; i++) {

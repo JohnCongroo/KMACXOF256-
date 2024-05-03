@@ -1,3 +1,4 @@
+//https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java
 public class sha3_ctx_t{
 
     //i am trying to simulate a union struct in c, which affects the same memory block.
