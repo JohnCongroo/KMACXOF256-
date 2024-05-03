@@ -3,7 +3,9 @@
  *
  * Sources:
  * NIST Special Publication 800-185 <https://dx.doi.org/10.6028/NIST.SP.800-185>
- * @author Max Yim, Jasmine Sellers, Andrew Holmes
+ * UWT TCSS487 Cryptography KMACXOF256 slides by Paulo Barreto
+ *
+ * @author Andrew Holmes, Jasmine Sellers, Max Yim
  * @version 3 May 2024
  */
 public class Internal {
