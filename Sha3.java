@@ -93,28 +93,6 @@ public class Sha3 {
         st[0] ^= keccakf_rndc[r];     
         }
 
-          /* 
-        for (i = 0; i < 25; i++) {
-            v = st[i];
-            long test = ((long) v & 0xFFL) << 56;
-            long test2 = ((long) v & 0xFF00L) << 40;
-            long test3 = ((long) v & 0xFF0000L) << 24;
-            long test4 = ((long) v & 0xFF000000L) << 8;
-            long test5 = ((long) v & 0xFF00000000L) >> 8;
-            long test6 = ((long) v & 0xFF0000000000L) >> 24;
-            long test7 = ((long) v & 0xFF000000000000L) >> 40;
-            long test8 = (long) (v >> 56) & 0xFF;
-
-            st[i] = ((long) v & 0xFFL)  << 56                | 
-                    (((long) v & 0xFF00L) << 40)             |
-                    (((long) v & 0xFF0000L)<< 24)            |
-                    (((long) v & 0xFF000000L) << 8)          |
-                    (((long) v & 0xFF00000000L) >> 8 )       |
-                    (((long) v & 0xFF0000000000L) >> 24 )    |
-                    (((long) v & 0xFF000000000000L) >> 40 )  |
-                    (((long) v & 0xFF00000000000000L) >> 56);
-            }
-*/
         return st;
     }
 

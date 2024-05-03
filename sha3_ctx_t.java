@@ -37,5 +37,4 @@ public class sha3_ctx_t{
         }
     }
 
-    //need somethign to update b and q at the same time
 }
