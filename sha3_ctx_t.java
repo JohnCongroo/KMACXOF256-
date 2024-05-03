@@ -1,7 +1,8 @@
-//https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java
+
 /**
  * The object that contains the internal state of the sponge
  * @author Max Yim, Jasmine Sellers, Andrew Holmes
+ * reference: https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java
  */
 
 public class sha3_ctx_t{
@@ -17,7 +18,9 @@ public class sha3_ctx_t{
         mdlen = 0; //size of message digest length
     }
 
-    //update q
+    /**
+     * update the long array with the contents of the byte array
+     */
     public void update_q(){
         long temp = 0;
         for (int i = 0; i < q.length; i++) {
@@ -30,6 +33,9 @@ public class sha3_ctx_t{
         }
     }
 
+    /**
+     * update the byte array with the contents of the long array
+     */
     public void update_b(){
         long temp;
         for (int i = 0; i < q.length; i++) {
