@@ -1,7 +1,15 @@
 /**
-* Sha3 family of functions including extendable output using cshake padding
-* @author Max yim, Jasmine Sellers, Andrew Holmes
-*/
+ * Sha3 family of functions including extendable output using cshake padding
+ *
+ * References:
+ * NIST Special Publication 800-185 <https://dx.doi.org/10.6028/NIST.SP.800-185>
+ * FIPS PUB 202 <https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.202.pdf>
+ * TCSS487 Cryptography KMACXOF256 slides by Paulo Barreto
+ * Markku-Juhani Saarinen’s C implementation: <https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c>
+ *
+ * @author Andrew Holmes, Jasmine Sellers, Max Yim
+ * @version 3 May 2024
+ */
 public class Sha3 {
     //check to see if we are shaking for endian conversion
     static boolean areWeShaking = false;
