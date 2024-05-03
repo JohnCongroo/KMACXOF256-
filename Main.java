@@ -22,27 +22,34 @@ import java.security.SecureRandom;
 public class Main {
     private static byte[] right_encode = {0, 1};
 
-    // IMPLEMENTATION
+    /**
+     * KECCAK Message Authentication Code (KMAC) used as a XOF.
+     * @param K the key of any length including zero
+     * @param X the main input/message string of any length including zero
+     * @param L the requested output length in bits
+     * @param S (optional) the customizable string
+     * @return
+     */
     public static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S) {
         if ((L & 7) != 0) {
             throw new RuntimeException("Implementation restriction: " +
                     "output length (in bits) must be a multiple of 8");
         }
 
-        // Preprocessing
+        // KMACXOF256 preprocessing: newX = bytepad(encode_string(K), 136) || X || right_encode(0).
         byte[] bytepadK = Internal.bytepad(Internal.encode_string(K), 136);
         byte[] newX = new byte[bytepadK.length + X.length + right_encode.length];
         System.arraycopy(bytepadK, 0, newX, 0, bytepadK.length);
         System.arraycopy(X, 0, newX, bytepadK.length, X.length);
         System.arraycopy(right_encode, 0, newX, bytepadK.length + X.length, right_encode.length);
 
+        // cSHAKE256 preprocessing: bytepad(encode_string(N) || encode_string(S), 136) || X
         byte[] encodeN = Internal.encode_string("KMAC".getBytes());
         byte[] encodeS = Internal.encode_string(S);
         byte[] encodeNS = new byte[encodeN.length + encodeS.length];
         System.arraycopy(encodeN, 0, encodeNS, 0, encodeN.length);
         System.arraycopy(encodeS, 0, encodeNS, encodeN.length, encodeS.length);
         byte[] bytepadNS = Internal.bytepad(encodeNS, 136);
-
         byte[] finalString = new byte[bytepadNS.length + newX.length];
         System.arraycopy(bytepadNS, 0, finalString, 0, bytepadNS.length);
         System.arraycopy(newX, 0, finalString, bytepadNS.length, newX.length);
@@ -54,13 +61,25 @@ public class Main {
         Sha3.shake_xof(c);
         byte[] val = new byte[L>>>3];
         Sha3.shake_out(c, val, L>>>3);
-
         return val;
     }
 
-    // cryptographic hash function
-
-
+    /**
+     * Runs the symmetric functionalities (arguments specified below):
+     * Cryptographic Hash Instructions:
+     *     <program_name> hash <filename_in> <filename_out>
+     * Authentication tag (MAC) Instructions:
+     *     <program_name> auth <filename_in> <filename_out> <passphrase_file>
+     * Encrypt Instructions:
+     *     <program_name> encrypt <filename_in> <filename_out> <passphrase_file>
+     * Decrypt Instructions:
+     *     <program_name> decrypt <filename_in> <filename_out> <passphrase_file>
+     * Hash_keyboard Instructions (Bonus):
+     *     <program_name> hash_keyboard <filename_out> <Typed Input>
+     * Auth_keyboard Instructions (Bonus):
+     *     <program_name> auth_keyboard <filename_out> <passphrase_file> <Typed input>
+     * @param args
+     */
     public static void main(String[] args) {
 
         byte[] zct = new byte[0];
