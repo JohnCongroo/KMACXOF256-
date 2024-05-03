@@ -13,6 +13,7 @@ public class Internal {
      * @param X the input string
      * @param w the integer
      * @return the bytepaded X
+     * @throws IllegalArgumentException if w <= 0
      */
     public static byte[] bytepad(byte[] X, int w){
         if (w > 0) {
@@ -36,9 +37,10 @@ public class Internal {
     }
 
     /**
-     *
-     * @param S byte[]
-     * @return byte[]
+     * Concatenates the left encode of the string S to S.
+     * @param S byte[] the string to encode
+     * @return the encoded string
+     * @throws IllegalArgumentException if X is < 0 or x > 2^2040
      */
     public static byte[] encode_string(byte[] S) {
         if (0 <= S.length && S.length < Math.pow(2, 2040)) {
@@ -54,9 +56,9 @@ public class Internal {
     }
 
     /**
-     *
-     * @param x int
-     * @return byte[]
+     * Prepends the length of the byte string of x to the encoded integer x as a byte string.
+     * @param x int the integer to encode as a byte string
+     * @return byte[] the left encoded byte string of x.
      * @throws IllegalArgumentException if X is < 0 or x > 2^2040
      */
     public static byte[] left_encode(int x){
