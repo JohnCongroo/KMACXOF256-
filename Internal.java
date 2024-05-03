@@ -7,6 +7,13 @@
  * @version 3 May 2024
  */
 public class Internal {
+    /**
+     * Prepends X with the left encode of the integer w. It then pads the result with zeros until the length
+     * in bytes is a multiple of w.
+     * @param X the input string
+     * @param w the integer
+     * @return the bytepaded X
+     */
     public static byte[] bytepad(byte[] X, int w){
         if (w > 0) {
             // 1. z = left_encode(w) || X.
@@ -15,14 +22,13 @@ public class Internal {
             System.arraycopy(leftEncode, 0, z, 0, leftEncode.length);
             System.arraycopy(X, 0, z, leftEncode.length, X.length);
 
+            // 3. while (len(z)/8) mod w ≠ 0:
             int appendBytes = 0;
             while ((z.length + appendBytes) * 8 / 8 % w != 0) {
                 appendBytes++;
             }
-
             byte[] final_bytepad = new byte[z.length + appendBytes];
             System.arraycopy(z, 0, final_bytepad, 0, z.length);
-
             return final_bytepad;
         } else {
             throw new IllegalArgumentException("error");
