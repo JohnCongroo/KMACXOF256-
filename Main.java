@@ -17,7 +17,8 @@ import java.security.SecureRandom;
  * NIST Special Publication 800-185 <https://dx.doi.org/10.6028/NIST.SP.800-185>
  * Markku-Juhani Saarinen’s C implementation: <https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c>
  * Conversion of long and byte arrays: <https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java>
- * @author Max Yim, Jasmine Sellers, Andrew Holmes
+ * UWT TCSS487 Cryptography KMACXOF256 slides by Paulo Barreto
+ * @author Andrew Holmes, Jasmine Sellers, Max Yim
  * @version 3 May 2024
  */
 public class Main {
@@ -162,6 +163,11 @@ public class Main {
         }
     }
 
+    /**
+     * Compute a cryptographic hash h of a byte array m:
+     * @param m the message
+     * @return cryptographic_hash of m
+     */
     public static byte[] cryptographic_hash(byte[] m) {
         return KMACXOF256("".getBytes(),  m, 512, "D".getBytes());
     }
@@ -255,7 +261,7 @@ public class Main {
      * @param name the file name
      * @return the byte array containing the contents from the file
      */
-    public static byte[] fileToByteArray(String name){
+    private static byte[] fileToByteArray(String name){
         byte[] fileBytes = new byte[0];
         try {
             fileBytes = Files.readAllBytes(Paths.get(name));
@@ -270,7 +276,7 @@ public class Main {
      * @param output the byte array containing content to be copied over
      * @param name the output file name
      */
-    public static void byteArrayToFile(byte[] output, String name){
+    private static void byteArrayToFile(byte[] output, String name){
         try {
             OutputStream stream = new FileOutputStream(name);
             stream.write(output);
@@ -285,7 +291,7 @@ public class Main {
      * @param numBytes the number of bytes to output
      * @param filename the file name
      */
-    public static void randomByteFileGenerator(int numBytes, String filename){
+    private static void randomByteFileGenerator(int numBytes, String filename){
         byte[] a = new SecureRandom().generateSeed(numBytes);
         byteArrayToFile(a, filename);
     }
