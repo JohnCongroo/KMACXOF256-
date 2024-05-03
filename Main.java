@@ -80,17 +80,17 @@ public class Main {
     /**
      * Runs the symmetric functionalities (arguments specified below):
      * Cryptographic Hash Instructions:
-     *     <program_name> hash <filename_in> <filename_out>
+     *     Main hash <filename_in> <filename_out>
      * Authentication tag (MAC) Instructions:
-     *     <program_name> auth <filename_in> <filename_out> <passphrase_file>
+     *     Main auth <filename_in> <filename_out> <passphrase_file>
      * Encrypt Instructions:
-     *     <program_name> encrypt <filename_in> <filename_out> <passphrase_file>
+     *     Main encrypt <filename_in> <filename_out> <passphrase_file>
      * Decrypt Instructions:
-     *     <program_name> decrypt <filename_in> <filename_out> <passphrase_file>
+     *     Main decrypt <filename_in> <filename_out> <passphrase_file>
      * Hash_keyboard Instructions (Bonus):
-     *     <program_name> hash_keyboard <filename_out> <Typed Input>
+     *     Main hash_keyboard <filename_out> <Typed Input>
      * Auth_keyboard Instructions (Bonus):
-     *     <program_name> auth_keyboard <filename_out> <passphrase_file> <Typed input>
+     *     Main auth_keyboard <filename_out> <passphrase_file> <Typed input>
      * @param args
      */
     public static void main(String[] args) {
